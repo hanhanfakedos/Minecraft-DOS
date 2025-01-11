@@ -122,7 +122,7 @@ class MultiThreadDownloader:
             thread.start()
         for thread in self.threads:
             thread.join()
-        self.combine_parts()
+            self.combine_parts()
 
 # Integrate the Downloader into the mc.py Script
 
@@ -160,7 +160,8 @@ class Minecraft:
             "Token":f"{UserUUID}",
             }
         conf["api"]={
-            "CurseForgeAPIKey":''
+            "CurseForgeAPIKey":'a',
+            "ModrinthAPIKey":'a'
             }
         if os.path.exists("config.ini") != True:
             with open("config.ini","w") as confFile:
@@ -413,7 +414,7 @@ class Minecraft:
         mods_dir = os.path.join(".minecraft", "mods")
         os.makedirs(mods_dir, exist_ok=True)
         dest_path = os.path.join(mods_dir, f"{mod_name}.jar")
-        download_file(file_url, dest_path)
+        Minecraft.download_file(file_url, dest_path)
         print(f"Downloaded mod {mod_name} for Minecraft {game_version}.")
     class RunMinecraft(Thread):
         """Use Minecraft.RunMinecraft.Run(U Version,Username,UUID,Token,Memory) to run"""
@@ -499,7 +500,41 @@ Minecraft Log
             with open("config.ini", "w") as configfile:
                 conf.write(configfile)
             print(Fore.GREEN + "Changes saved.")
-        
+    def fetch_mods_from_modrinth(api_key):
+        url = "https://api.modrinth.com/v2/project"
+        headers = {
+            "Accept": "application/json",
+            "Authorization": api_key
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            mods = response.json()
+            return mods
+        else:
+            print("Failed to fetch mods from Modrinth API")
+            return []
+
+    @staticmethod
+    def download_mod_from_modrinth(mod_id, game_version):
+        url = f"https://api.modrinth.com/v2/project/{mod_id}/version"
+        response = requests.get(url)
+        if response.status_code != 200:
+            print("Failed to fetch mod versions from Modrinth API")
+            return
+
+        versions = response.json()
+        compatible_versions = [v for v in versions if game_version in v["game_versions"]]
+        if not compatible_versions:
+            print("No compatible versions found for the specified game version.")
+            return
+
+        download_url = compatible_versions[0]["files"][0]["url"]
+        mods_dir = os.path.join(".minecraft", "mods")
+        os.makedirs(mods_dir, exist_ok=True)
+        dest_path = os.path.join(mods_dir, f"{mod_id}.jar")
+        Minecraft.download_file(download_url, dest_path)
+        print(f"Downloaded mod {mod_id} for Minecraft {game_version}.")
+
     def AuthlibSign(URL,Username,Password):
         AuthlibJson={
             "username":Username,
@@ -528,6 +563,7 @@ Minecraft Log
         token1=conf["user"]["Token"]
         Xmx1=conf["JVMMemory"]["Xmx"]
         api_key = conf["api"]["CurseForgeAPIKey"]
+        modrinth_api_key = conf.get("api", "ModrinthAPIKey", fallback=None)
         helpf=f"""
 {Fore.YELLOW}Minecraft-DOS Help documents
 {Fore.CYAN}----------------------------------------------------
@@ -576,7 +612,13 @@ Minecraft Log
 {Fore.GREEN}downmod {Fore.WHITE}(ModName GameVersion)(Beta)
 {Fore.WHITE}Download a mod from CurseForge
 {Fore.CYAN}----------------------------------------------------
-    """
+{Fore.GREEN}modrinth{Fore.WHITE} (None)
+{Fore.WHITE}Display available mods from Modrinth API
+{Fore.CYAN}----------------------------------------------------
+{Fore.GREEN}downmodrinth{Fore.WHITE} (ModID GameVersion)
+{Fore.WHITE}Download a mod from Modrinth
+{Fore.CYAN}----------------------------------------------------
+"""
         
         print(Fore.CYAN + "Enter `help` for help")
         while True:
@@ -599,6 +641,13 @@ Minecraft Log
                         print("Available Mods from CurseForge:")
                         for mod in mods:
                             print(f"- {mod['name']} ({mod['slug']})")
+                elif DOS == "checkdisk":
+                    check_disk_space()
+                elif DOS == "sysinfo":
+                    show_system_info()
+                elif DOS.startswith("uninstall"):
+                    ver=DOS.split(" ")[1]
+                    Minecraft.uninstall_minecraft_version(ver)
                 elif DOS == "listver":
                     print(Fore.CYAN + "List versions\nTypes:\n(1)Release\n(2)Snapshot\n(3)Old Alpha\n(4)Exit\n(Can Multi choose)")
                     while True:
@@ -643,6 +692,20 @@ Minecraft Log
                     Minecraft.RunMinecraft.Run(Vers21,conf["userAuthlib"]["Username"],conf["userAuthlib"]["UUID"],conf["userAuthlib"]["Token"],Xmx1,authlib=True)
                 elif DOS == "help":
                     print(helpf)
+                elif DOS.startswith("downmodrinth "):
+                    parts = DOS.split(" ")
+                    if len(parts) == 3:
+                        mod_id = parts[1]
+                        game_version = parts[2]
+                        Minecraft.download_mod_from_modrinth(mod_id, game_version)
+                    else:
+                        print("Usage: downmodrinth <ModID> <GameVersion>")
+                elif DOS == "modrinth":
+                    mods = Minecraft.fetch_mods_from_modrinth(modrinth_api_key)
+                    if mods:
+                        print("Available Mods from Modrinth:")
+                        for mod in mods:
+                            print(f"- {mod['title']} ({mod['slug']})")
                 elif DOS == "clear":
                     print("\033c",end="")
                 elif DOS == "refrver" or keyboard.is_pressed("f5"):
@@ -674,16 +737,25 @@ Minecraft.Config_ini()
 
 def boot_sequence():
         Minecraft.OOO(Fore.CYAN + "Starting Minecraft-DOS...",1,0.05)
+        print("\n")
         Minecraft.OOO(Fore.CYAN + "Initializing system components...",1,0.05)
+        print("\n")
         Minecraft.OOO(Fore.CYAN + "Loading configurations...",1,0.05)
+        print("\n")
         Minecraft.OOO(Fore.CYAN + "Checking network connectivity...",1,0.05)
+        print("\n")
         if isnetconnect():
             print(Fore.GREEN + "Network connected")
+            print("\n")
         else:
             print(Fore.RED + "No network connection")
+            print("\n")
         Minecraft.OOO(Fore.CYAN + "Setting up environment...",1,0.05)
+        print("\n")
         Minecraft.OOO(Fore.CYAN + "Launching Minecraft-DOS",1,0.05)
+        print("\n")
         print(Fore.GREEN + "Minecraft-DOS is ready to use!")
+        print("\n")
 
 boot_sequence()
 Minecraft.OOO(Fore.GREEN + "HIMEM is testing memory...",10,0.05)
