@@ -42,29 +42,50 @@
 To run the script, use the following command:
 python MC.py
 Commands Available in Minecraft-DOS:
-
----
+==============================================================
 listver: List all available Minecraft versions
+==============================================================
 download <version>: Download a specific Minecraft version
+==============================================================
 launch <version>: Launch a specific Minecraft version
+==============================================================
 config: Configure your profile
+==============================================================
 clear: Clear the console
+==============================================================
 refrver or F5: Refresh installed versions
+==============================================================
 mslogin: Microsoft account login
+==============================================================
 authlib: Authlib-Injector Yggdrasil Sign
+==============================================================
 alaunch <version>: Launch Minecraft with Authlib-Injector
+==============================================================
 mslaunch <version>: Launch Minecraft with Microsoft Account
+==============================================================
 modsmenu: Display available mods from CurseForge API
+==============================================================
 checkdisk: Check available disk space
+==============================================================
 sysinfo: Show system information
+==============================================================
 uninstall <version>: Uninstall a specific Minecraft version
+==============================================================
+modmenu: Fetch mods from CurseForge
+==============================================================
 downmod <ModName> <GameVersion>: Download a mod from CurseForge
+==============================================================
 modrinth: Display available mods from Modrinth API
+==============================================================
 downmodrinth <ModID> <GameVersion>: Download a mod from Modrinth
+==============================================================
 skinmanager: Manage Minecraft skins
+==============================================================
 help: Show help documentation
+==============================================================
 exit: Exit the application
----
+==============================================================
+
 ## Minecraft History
 Minecraft is a sandbox video game developed and published by Mojang. The game was created by Markus "Notch" Persson in the Java programming language. It was publicly released for the first time on May 17, 2009, and after gradual updates, it was fully released on November 18, 2011. Microsoft purchased Mojang and the intellectual property of Minecraft in 2014 for $2.5 billion.
 
@@ -115,20 +136,43 @@ Available Versions:
  - 1.16.5
 Start time at 2025-01-12 17:08:05.775514
 Enter `help` for help
+{cwd}:>>>
+```
+## Download MCVersion
+```sh
 {cwd}:>>> download 1.12.2
+```
+next to
+```
 Select modloader:
 fo.Forge
 fa.Fabric
 q.quilt
 v.vanilla
 0.no install
+>>>
+```
+example forge to input:
+```sh
 >>>fo
+```
+ProgressBar
+```sh
 [|####################################################################################################=>|Downloaded:207/207|100%|Task:Install java runtime]
+```
+downloaded forge,this is example don't install OptiFine
+```sh
 Success Install Forge 1.12.2-14.23.5.2860
 Download optifine?>>> [y|n]n
+```
+If you want to use authlib-injector sign in, you can
+```sh
 {cwd}:>>> authlib
 Email:somename@example.com
 Password:youpassword
+```
+use authlib-injector launch version
+```
 {cwd}:>>> alaunch 1.12.2
 Spawned Launcher CMD
 DOS/4GW Protected Mode Runtime Version 1.97
@@ -147,8 +191,10 @@ Minecraft Log
 [authlib-injector] [INFO] Version: 1.2.5
 [authlib-injector] [INFO] Authentication server: https://littleskin.cn/api/yggdrasil
 Enter `help` for help
+```
+if you want exit, you can input <exit>
+```sh
 {cwd}>>> exit
-0
 username@host~$
 ```
 
