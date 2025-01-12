@@ -439,19 +439,13 @@ class Minecraft:
             for i in optifineURL:
                 if not 'pre' in i['patch']:
                     f3.append("OptiFine_{}_{}_{}.jar".format(i['mcversion'],i['type'],i['patch']))
-            print("Avaliable version:{}".format(f3))
+            print("Avaliable version:{}".format(f3[-1]))
             if not os.path.exists(f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods"):
                 os.makedirs(f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods")
             while True:
                 b=input("Select version(if not to exit)")
-                if b in f3:
-                    if not os.path.exists(f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods/optifine.jar"):
-                        wget.download(f"https://bmclapi2.bangbang93.com/maven/com/optifine/{ver}/{b}",f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods/optifine.jar")
-                        break
-                else:
-                    if not os.path.exists(f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods/optifine.jar"):
-                        wget.download(f"https://bmclapi2.bangbang93.com/maven/com/optifine/{ver}/{f3[-1]}",f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods/optifine.jar")
-                        break
+                if not os.path.exists(f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods/optifine.jar"):
+                    wget.download(f"https://bmclapi2.bangbang93.com/maven/com/optifine/{ver}/{f3[-1]}",f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods/optifine.jar")
 
         def fabricAPI(ver):
             """Fabric mods need Fabric API"""
@@ -778,6 +772,9 @@ Minecraft Log
 {Fore.GREEN}uninstall {Fore.WHITE}(Vers)
 {Fore.WHITE}Uninstall a Minecraft version
 {Fore.CYAN}----------------------------------------------------
+{Fore.GREEN}modmenu {Fore.WHITE}(Beta)
+{Fore.WHITE}Fetch mods from CurseForge
+{Fore.CYAN}----------------------------------------------------
 {Fore.GREEN}downmod {Fore.WHITE}(ModName GameVersion)(Beta)
 {Fore.WHITE}Download a mod from CurseForge
 {Fore.CYAN}----------------------------------------------------
@@ -816,6 +813,8 @@ Minecraft Log
                 elif DOS.startswith("uninstall"):
                     ver=DOS.split(" ")[1]
                     Minecraft.uninstall_minecraft_version(ver)
+                elif DOS == 'modmenu':
+                    Minecraft.fecth_mods_form_curseforge(api_key)
                 elif DOS == "listver":
                     print(Fore.CYAN + "List versions\nTypes:\n(1)Release\n(2)Snapshot\n(3)Old Alpha\n(4)Exit\n(Can Multi choose)")
                     while True:
@@ -906,15 +905,16 @@ Minecraft.Config_ini()
 
 def boot_sequence():
         Minecraft.OOO(Fore.CYAN + "Starting Minecraft-DOS...",1,0.05)
-        print("")
+        print("\n")
         Minecraft.OOO(Fore.CYAN + "Initializing system components...",1,0.05)
-        print("")
+        print("\n")
         Minecraft.OOO(Fore.CYAN + "Loading configurations...",1,0.05)
         print("\n")
         Minecraft.OOO(Fore.CYAN + "Checking network connectivity...",1,0.05)
-        print("")
+        print("\n")
         if isnetconnect():
             print(Fore.GREEN + "Network connected")
+            print("\n")
         else:
             print(Fore.RED + "No network connection")
             print("\n")
