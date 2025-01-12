@@ -64,6 +64,7 @@ MSloginData={}
 YggdrasilURL="https://littleskin.cn/api/yggdrasil"
 AuthlibB64=str(base64.b64encode(str(requests.get(YggdrasilURL).json()).encode('utf-8')),'utf-8')
 
+
 def isnetconnect():
     ipaddress = socket.gethostbyname(socket.gethostname())
     if ipaddress == '127.0.0.1':
@@ -84,6 +85,141 @@ def show_system_info():
     print(f"Version: {platform.version()}")
     print(f"Machine: {platform.machine()}")
     print(f"Processor: {platform.processor()}")
+class MinecraftSkins:
+    def __init__(self):
+        self.config = configparser.ConfigParser()
+        self.load_config()
+        self.skins_dir = os.path.join(os.getcwd(), ".minecraft", "skins")
+        self.ensure_directories()
+
+    def ensure_directories(self):
+        """Create necessary directories if they don't exist"""
+        if not os.path.exists(self.skins_dir):
+            os.makedirs(self.skins_dir)
+
+    def load_config(self):
+        """Load configuration file"""
+        if os.path.exists("config.ini"):
+            self.config.read("config.ini")
+
+    def download_official_skin(self, username):
+        """Download skin from official Minecraft servers"""
+        try:
+            print(f"\033[36mDownloading official skin for {username}...\033[0m")
+            response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{username}")
+            if response.status_code != 200:
+                print(f"\033[31mCould not find player: {username}\033[0m")
+                return None
+                
+            player_uuid = response.json()['id']
+            response = requests.get(f"https://sessionserver.mojang.com/session/minecraft/profile/{player_uuid}")
+            if response.status_code != 200:
+                print("\033[31mFailed to fetch skin data\033[0m")
+                return None
+                
+            profile_data = response.json()
+            for prop in profile_data['properties']:
+                if prop['name'] == 'textures':
+                    texture_data = json.loads(base64.b64decode(prop['value']))
+                    skin_url = texture_data['textures']['SKIN']['url']
+                    skin_response = requests.get(skin_url)
+                    if skin_response.status_code == 200:
+                        skin_path = os.path.join(self.skins_dir, f"{username}_official.png")
+                        with open(skin_path, 'wb') as f:
+                            f.write(skin_response.content)
+                        print(f"\033[32mSkin downloaded successfully to: {skin_path}\033[0m")
+                        return skin_path
+                        
+            print("\033[31mNo skin found for this player\033[0m")
+            return None
+            
+        except Exception as e:
+            print(f"\033[31mError downloading official skin: {e}\033[0m")
+            return None
+
+    def download_third_party_skin(self, username, server_url=None):
+        """Download skin from third-party authentication server"""
+        try:
+            if server_url is None:
+                server_url = "https://littleskin.cn/api/yggdrasil"
+                
+            print(f"\033[36mDownloading skin for {username} from {server_url}...\033[0m")
+            response = requests.get(f"{server_url}/sessionserver/session/minecraft/profile/{username}")
+            if response.status_code != 200:
+                print(f"\033[31mCould not find player on third-party server: {username}\033[0m")
+                return None
+
+            profile_data = response.json()
+            for prop in profile_data.get('properties', []):
+                if prop['name'] == 'textures':
+                    texture_data = json.loads(base64.b64decode(prop['value']))
+                    if 'textures' in texture_data and 'SKIN' in texture_data['textures']:
+                        skin_url = texture_data['textures']['SKIN']['url']
+                        skin_response = requests.get(skin_url)
+                        if skin_response.status_code == 200:
+                            skin_path = os.path.join(self.skins_dir, f"{username}_custom.png")
+                            with open(skin_path, 'wb') as f:
+                                f.write(skin_response.content)
+                            print(f"\033[32mCustom skin downloaded successfully to: {skin_path}\033[0m")
+                            return skin_path
+
+            print("\033[31mNo skin found on third-party server\033[0m")
+            return None
+            
+        except Exception as e:
+            print(f"\033[31mError downloading custom skin: {e}\033[0m")
+            return None
+
+    def upload_skin(self, skin_path, auth_token, slim_model=False):
+        """Upload skin to authenticated account"""
+        try:
+            print("\033[36mUploading skin...\033[0m")
+            if not os.path.exists(skin_path):
+                print("\033[31mSkin file not found\033[0m")
+                return False
+                
+            try:
+                with Image.open(skin_path) as img:
+                    width, height = img.size
+                    if width != 64 or (height != 64 and height != 32):
+                        print("\033[31mInvalid skin dimensions. Must be 64x64 or 64x32\033[0m")
+                        return False
+            except Exception as e:
+                print(f"\033[31mInvalid image file: {e}\033[0m")
+                return False
+
+            headers = {'Authorization': f'Bearer {auth_token}'}
+            files = {'file': ('skin.png', open(skin_path, 'rb'), 'image/png')}
+            data = {'model': 'slim' if slim_model else 'classic'}
+
+            response = requests.post('https://api.minecraftservices.com/minecraft/profile/skins', headers=headers, files=files, data=data)
+            if response.status_code == 200:
+                print("\033[32mSkin uploaded successfully!\033[0m")
+                return True
+            else:
+                print(f"\033[31mFailed to upload skin. Status code: {response.status_code}\033[0m")
+                return False
+                
+        except Exception as e:
+            print(f"\033[31mError uploading skin: {e}\033[0m")
+            return False
+
+    def list_local_skins(self):
+        """List all locally stored skins"""
+        try:
+            skins = [f for f in os.listdir(self.skins_dir) if f.endswith('.png')]
+            if skins:
+                print("\033[36mLocally stored skins:\033[0m")
+                for skin in skins:
+                    print(f"- {skin}")
+                return skins
+            else:
+                print("\033[33mNo skins found in local storage\033[0m")
+                return []
+        except Exception as e:
+            print(f"\033[31mError listing skins: {e}\033[0m")
+            return []
+
 # Define the Multi-Threaded Downloader Class
 class MultiThreadDownloader:
     def __init__(self, url, dest, num_threads=4):
@@ -192,6 +328,39 @@ class Minecraft:
                 return False
             else:
                 print("Please enter y or n")
+    def skin_manager_interface(self, args=None):
+        """Manage Minecraft skins"""
+        while True:
+            print(f"\n{Fore.CYAN}Minecraft Skin Manager")
+            print("1. Download official skin")
+            print("2. Download custom skin")
+            print("3. Upload skin")
+            print("4. List local skins")
+            print("5. Exit")
+            choice = input("Enter your choice (1-5): ")
+            if choice == "1":
+                username = input("Enter Minecraft username: ")
+                self.skin_manager.download_official_skin(username)
+            elif choice == "2":
+                username = input("Enter username: ")
+                server = input("Enter custom server URL (press Enter for default): ")
+                if server.strip():
+                    self.skin_manager.download_third_party_skin(username, server)
+                else:
+                    self.skin_manager.download_third_party_skin(username)
+            elif choice == "3":
+                skin_path = input("Enter skin file path: ")
+                auth_token = input("Enter authentication token: ")
+                slim = Minecraft.ask_yes_no("Use slim model?")
+                if slim:
+                    self.skin_manager.upload_skin(skin_path, auth_token, slim)
+                else:
+                    self.skin_manager.upload_skin(skin_path, auth_token)
+            elif choice == "4":
+                self.skin_manager.list_local_skins()
+            elif choice == "5":
+                print(f"{Fore.CYAN}Exiting Skin Manager...")
+                break
     def Menu():
         print(Fore.CYAN + "===================================================================")
         print(Fore.YELLOW + "                         Minecraft-DOS")
@@ -628,11 +797,10 @@ Minecraft Log
                     Vers = DOS.split(" ")[1]
                     Minecraft.installMinecraft.Download(Vers)
                 elif DOS.startswith('launch '):
-                    Vers2 = DOS.split(" ")[1]
-                    if DOS.split(" ")[2]:
-                        Minecraft.RunMinecraft.Run(Vers2,DOS.split(" ")[2],uuid1,token1,Xmx1)
-                    else:
-                        Minecraft.RunMinecraft.Run(Vers2,username1,uuid1,token1,Xmx1)                        
+                    parts = DOS_command.split(" ")
+                    version = parts[1]
+                    username = parts[2] if len(parts) > 2 else username1
+                    Minecraft.RunMinecraft.Run(version, username, uuid1, token1, Xmx1)                        
                 elif DOS == "config":
                     Minecraft.ConfPanel()
                 elif DOS == "modsmenu":
@@ -674,9 +842,8 @@ Minecraft Log
                     conf["userMS"]["Token"]=MSloginData["access_token"]
                     with open("config.ini", "w") as configfile:
                         conf.write(configfile)
-                elif 'mslaunch ' in DOS and DOS.index("a") == 0:
-                    c=DOS.lower()
-                    Vers21=c.replace("alaunch ", '')
+                elif DOS.startswith('mslaunch '):
+                    Vers21=DOS.split(" ")[1]
                     conf = configparser.ConfigParser()
                     conf.read("config.ini")
                     Minecraft.RunMinecraft.Run(Vers21,conf["userMS"]["Username"],conf["userMS"]["UUID"],conf["userMS"]["Token"],Xmx1,authlib=True)
@@ -684,12 +851,14 @@ Minecraft Log
                     email = input("Email:")
                     passwd = input("Password:")
                     Minecraft.AuthlibSign(YggdrasilURL, email, passwd)
-                elif 'alaunch ' in DOS and DOS.index("a") == 0:
+                elif DOS.startswith('alaunch '):
                     c=DOS.lower()
-                    Vers21=c.replace("alaunch ", '')
+                    Vers21=DOS.split(" ")[1]
                     conf = configparser.ConfigParser()
                     conf.read("config.ini")
                     Minecraft.RunMinecraft.Run(Vers21,conf["userAuthlib"]["Username"],conf["userAuthlib"]["UUID"],conf["userAuthlib"]["Token"],Xmx1,authlib=True)
+                elif DOS == 'skinmanager':
+                    Minecraft.skin_manager_interface()
                 elif DOS == "help":
                     print(helpf)
                 elif DOS.startswith("downmodrinth "):
@@ -737,16 +906,15 @@ Minecraft.Config_ini()
 
 def boot_sequence():
         Minecraft.OOO(Fore.CYAN + "Starting Minecraft-DOS...",1,0.05)
-        print("\n")
+        print("")
         Minecraft.OOO(Fore.CYAN + "Initializing system components...",1,0.05)
-        print("\n")
+        print("")
         Minecraft.OOO(Fore.CYAN + "Loading configurations...",1,0.05)
         print("\n")
         Minecraft.OOO(Fore.CYAN + "Checking network connectivity...",1,0.05)
-        print("\n")
+        print("")
         if isnetconnect():
             print(Fore.GREEN + "Network connected")
-            print("\n")
         else:
             print(Fore.RED + "No network connection")
             print("\n")
