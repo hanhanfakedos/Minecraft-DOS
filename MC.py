@@ -4,7 +4,9 @@ import subprocess
 import uuid
 import datetime
 import sys
+import json
 import time
+import zipfile
 import configparser
 import platform
 import socket
@@ -24,6 +26,7 @@ try:
     import requests
     from colorama import Fore, Style, init
     init(autoreset=True)
+    from PIL import Image
 except ModuleNotFoundError:
     pipdown("minecraft_launcher_lib")
     pipdown("wget")
@@ -32,10 +35,15 @@ except ModuleNotFoundError:
     os.system("pip3 install colorama") #special
     from colorama import Fore, Style, init
     init(autoreset=True)
+    os.system("pip3 install pillow")
+    from PIL import Image
 
 if platform.architecture()[0] == '32bit':
     print("Sorry,The system is unsupport this version")
     exit()
+
+def empty(*args):
+    pass
 
 __author__="HomingThistle3770"
 cwd = os.getcwd()
@@ -64,7 +72,7 @@ MSloginData={}
 YggdrasilURL="https://littleskin.cn/api/yggdrasil"
 AuthlibB64=str(base64.b64encode(str(requests.get(YggdrasilURL).json()).encode('utf-8')),'utf-8')
 
-
+optionstxt="""invertYMouse:false\nmouseSensitivity:0.5\nfov:0.0\ngamma:0.0\nsaturation:0.0\nrenderDistance:12\nguiScale:0\nparticles:0\nbobView:true\nmaxFps:260\ndifficulty:2\nfancyGraphics:true\nao:true\nbiomeBlendRadius:2\nrenderClouds:true\nresourcePacks:[]\nincompatibleResourcePacks:[]\nlastServer:null\nlang:en_us\nchatVisibility:0\nchatColors:true\nchatLinks:true\nchatLinksPrompt:true\nenableVsync:false\nhideServerAddress:false\nadvancedItemTooltips:false\npauseOnLostFocus:true\ntouchscreen:false\noverrideWidth:0\noverrideHeight:0\nheldItemTooltips:true\nchatHeightFocused:1.0\nchatHeightUnfocused:0.44366196\nchatScale:1.0\nchatWidth:1.0\nmipmapLevels:4\nuseNativeTransport:true\nmainHand:right\nattackIndicator:1\nnarrator:0\ntutorialStep:none\nkey_key.attack:-100\nkey_key.use:-99\nkey_key.forward:17\nkey_key.left:30\nkey_key.back:31\nkey_key.right:32\nkey_key.jump:57\nkey_key.sneak:42\nkey_key.sprint:29\nkey_key.drop:16\nkey_key.inventory:18\nkey_key.chat:20\nkey_key.playerlist:15\nkey_key.pickItem:-98\nkey_key.command:53\nkey_key.screenshot:60\nkey_key.togglePerspective:63\nkey_key.smoothCamera:0\nkey_key.fullscreen:87\nkey_key.spectatorOutlines:0\nkey_key.advancements:38\nkey_key.saveToolbarActivator:0\nkey_key.loadToolbarActivator:0\nkey_key.hotbar.1:2\nkey_key.hotbar.2:3\nkey_key.hotbar.3:4\nkey_key.hotbar.4:5\nkey_key.hotbar.5:6\nkey_key.hotbar.6:7\nkey_key.hotbar.7:8\nkey_key.hotbar.8:9\nkey_key.hotbar.9:10\nsoundCategory_master:1.0\nsoundCategory_music:1.0\nsoundCategory_record:1.0\nsoundCategory_weather:1.0\nsoundCategory_block:0.5070422\nsoundCategory_hostile:1.0\nsoundCategory_neutral:0.5\nsoundCategory_player:1.0\nsoundCategory_ambient:1.0\nmodelPart_cape:true\nmodelPart_jacket:true\nmodelPart_left_sleeve:true\nmodelPart_right_sleeve:true\nmodelPart_left_pants_leg:true\nmodelPart_right_pants_leg:true\nmodelPart_hat:true"""
 def isnetconnect():
     ipaddress = socket.gethostbyname(socket.gethostname())
     if ipaddress == '127.0.0.1':
@@ -105,16 +113,16 @@ class MinecraftSkins:
     def download_official_skin(self, username):
         """Download skin from official Minecraft servers"""
         try:
-            print(f"\033[36mDownloading official skin for {username}...\033[0m")
+            print(f"{Fore.CYAN}Downloading official skin for {username}...")
             response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{username}")
             if response.status_code != 200:
-                print(f"\033[31mCould not find player: {username}\033[0m")
+                print(f"{Fore.RED}Could not find player: {username}")
                 return None
                 
             player_uuid = response.json()['id']
             response = requests.get(f"https://sessionserver.mojang.com/session/minecraft/profile/{player_uuid}")
             if response.status_code != 200:
-                print("\033[31mFailed to fetch skin data\033[0m")
+                print(f"{Fore.RED}Failed to fetch skin data")
                 return None
                 
             profile_data = response.json()
@@ -127,14 +135,14 @@ class MinecraftSkins:
                         skin_path = os.path.join(self.skins_dir, f"{username}_official.png")
                         with open(skin_path, 'wb') as f:
                             f.write(skin_response.content)
-                        print(f"\033[32mSkin downloaded successfully to: {skin_path}\033[0m")
+                        print(f"{Fore.GREEN}Skin downloaded successfully to: {skin_path}")
                         return skin_path
                         
-            print("\033[31mNo skin found for this player\033[0m")
+            print(f"{Fore.RED}No skin found for this player")
             return None
             
         except Exception as e:
-            print(f"\033[31mError downloading official skin: {e}\033[0m")
+            print(f"{Fore.RED}Error downloading official skin: {e}")
             return None
 
     def download_third_party_skin(self, username, server_url=None):
@@ -143,10 +151,10 @@ class MinecraftSkins:
             if server_url is None:
                 server_url = "https://littleskin.cn/api/yggdrasil"
                 
-            print(f"\033[36mDownloading skin for {username} from {server_url}...\033[0m")
+            print(f"{Fore.CYAN}Downloading skin for {username} from {server_url}...")
             response = requests.get(f"{server_url}/sessionserver/session/minecraft/profile/{username}")
             if response.status_code != 200:
-                print(f"\033[31mCould not find player on third-party server: {username}\033[0m")
+                print(f"{Fore.RED}Could not find player on third-party server: {username}")
                 return None
 
             profile_data = response.json()
@@ -160,32 +168,32 @@ class MinecraftSkins:
                             skin_path = os.path.join(self.skins_dir, f"{username}_custom.png")
                             with open(skin_path, 'wb') as f:
                                 f.write(skin_response.content)
-                            print(f"\033[32mCustom skin downloaded successfully to: {skin_path}\033[0m")
+                            print(f"{Fore.GREEN}Custom skin downloaded successfully to: {skin_path}")
                             return skin_path
 
-            print("\033[31mNo skin found on third-party server\033[0m")
+            print(f"{Fore.RED}No skin found on third-party server")
             return None
             
         except Exception as e:
-            print(f"\033[31mError downloading custom skin: {e}\033[0m")
+            print(f"{Fore.RED}Error downloading custom skin: {e}")
             return None
 
     def upload_skin(self, skin_path, auth_token, slim_model=False):
         """Upload skin to authenticated account"""
         try:
-            print("\033[36mUploading skin...\033[0m")
+            print(f"{Fore.CYAN}Uploading skin...")
             if not os.path.exists(skin_path):
-                print("\033[31mSkin file not found\033[0m")
+                print(f"{Fore.RED}Skin file not found")
                 return False
                 
             try:
                 with Image.open(skin_path) as img:
                     width, height = img.size
                     if width != 64 or (height != 64 and height != 32):
-                        print("\033[31mInvalid skin dimensions. Must be 64x64 or 64x32\033[0m")
+                        print(f"{Fore.RED}Invalid skin dimensions. Must be 64x64 or 64x32")
                         return False
             except Exception as e:
-                print(f"\033[31mInvalid image file: {e}\033[0m")
+                print(f"{Fore.RED}Invalid image file: {e}")
                 return False
 
             headers = {'Authorization': f'Bearer {auth_token}'}
@@ -194,14 +202,14 @@ class MinecraftSkins:
 
             response = requests.post('https://api.minecraftservices.com/minecraft/profile/skins', headers=headers, files=files, data=data)
             if response.status_code == 200:
-                print("\033[32mSkin uploaded successfully!\033[0m")
+                print(f"{Fore.GREEN}Skin uploaded successfully!")
                 return True
             else:
-                print(f"\033[31mFailed to upload skin. Status code: {response.status_code}\033[0m")
+                print(f"{Fore.RED}Failed to upload skin. Status code: {response.status_code}")
                 return False
                 
         except Exception as e:
-            print(f"\033[31mError uploading skin: {e}\033[0m")
+            print(f"{Fore.RED}Error uploading skin: {e}")
             return False
 
     def list_local_skins(self):
@@ -209,15 +217,15 @@ class MinecraftSkins:
         try:
             skins = [f for f in os.listdir(self.skins_dir) if f.endswith('.png')]
             if skins:
-                print("\033[36mLocally stored skins:\033[0m")
+                print(f"{Fore.CYAN}Locally stored skins:")
                 for skin in skins:
                     print(f"- {skin}")
                 return skins
             else:
-                print("\033[33mNo skins found in local storage\033[0m")
+                print(f"{Fore.YELLOW}No skins found in local storage")
                 return []
         except Exception as e:
-            print(f"\033[31mError listing skins: {e}\033[0m")
+            print(f"{Fore.RED}Error listing skins: {e}")
             return []
 
 # Define the Multi-Threaded Downloader Class
@@ -296,8 +304,7 @@ class Minecraft:
             "Token":f"{UserUUID}",
             }
         conf["api"]={
-            "CurseForgeAPIKey":'a',
-            "ModrinthAPIKey":'a'
+            "CurseForgeAPIKey":'$2a$10$6.P/W1SuOQxOsPnsqHYHc.01wQN.duMd2nxrYwOJJCP4nKhLXEdza'
             }
         if os.path.exists("config.ini") != True:
             with open("config.ini","w") as confFile:
@@ -305,8 +312,67 @@ class Minecraft:
             conf.read("config.ini")
         else:
             conf.read("config.ini")
+    def launcher_profile():
+        profile = {
+            "profiles": {
+                "DOSCraft": {
+                    "name": "DOSCraft",
+                    "gameDir": defaultMinecraftDir,
+                    "lastVersionId": "1.17.1",
+                    "javaDir": if os.name == "nt":f"{os.environ['JAVA_HOME']}\\bin\\java.exe" else "/usr/bin/java",
+                    "javaArgs": "-client -Xmx4096m -Xms4096m -Xmn1536m -Xss1m -XX:-UseAdaptiveSizePolicy -XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump",
+                    "allowedReleaseTypes": ["release", "snapshot", "old_beta", "old_alpha"],
+                    "launcherVisibilityOnGameClose": "keep the launcher open"
+                },
+                "32bit": {
+                    "name": "32bit",
+                    "gameDir": defaultMinecraftDir,
+                    "lastVersionId": "1.8.9",
+                    "javaDir": if os.name == "nt":f"{os.environ['JAVA_HOME']}\\bin\\java.exe" else "/usr/bin/java",
+                    "javaArgs": "-client -Xmx1024m -Xms1024m -Xmn384m -Xss1m -XX:-UseAdaptiveSizePolicy -XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump",
+                    "allowedReleaseTypes": ["release", "snapshot", "old_beta", "old_alpha"],
+                    "launcherVisibilityOnGameClose": "keep the launcher open"
+                }
+            },
+            "selectedProfile": "DOSCraft",
+            "clientToken": "a1b2c3d4-e5f6-a7b8-c9d0-e1f2g3h4i5j6",
+            "authenticationDatabase": {
+                "a1b2c3d4-e5f6-a7b8-c9d0-e1f2g3h4i5j6": {
+                    "displayName": "DOSCraft",
+                    "userType": "mojang",
+                    "properties": []
+                }
+            },
+            "selectedUser": "a1b2c3d4-e5f6-a7b8-c9d0-e1f2g3h4i5j6",
+            "launcherVersion": {
+                "name": "0.01Beta",
+                "format": 21
+            }
+        }
+        if os.path.exists(os.path.join(defaultMinecraftDir, "launcher_profiles.json")) != True:
+            with open(os.path.join(defaultMinecraftDir, "launcher_profiles.json"), "w") as f:
+                json.dump(profile, f, indent=4)
+        else:
+            pass
+    def optionstxt():
+        if os.path.exists(os.path.join(defaultMinecraftDir, "options.txt")) != True:
+            with open(os.path.join(defaultMinecraftDir, "options.txt"), "w") as f:
+                f.write(optionstxt)
     def fetch_mods_from_curseforge(api_key):
         url = "https://api.curseforge.com/v1/mods/search?gameId=432"
+        headers = {
+            "Accept": "application/json",
+            "x-api-key": api_key
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            mods = response.json()["data"]
+            return mods
+        else:
+            print("Failed to fetch mods from CurseForge API")
+            return []
+    def search_mods_from_curseforge(query, api_key):
+        url = f"https://api.curseforge.com/v1/mods/search?gameId=432&searchFilter={query}"
         headers = {
             "Accept": "application/json",
             "x-api-key": api_key
@@ -489,7 +555,50 @@ class Minecraft:
                         break
                     except Exception as e:
                         return "ERROR:::"+e
-
+        def installneoforged(ver,callback:dict):
+            """Neoforged and Forge is friends"""
+            minecraft_launcher_lib.install.install_minecraft_version(ver,defaultMinecraftDir,callback=callback)
+            neoforgever=requests.get(f"https://bmclapi2.bangbang93.com/neoforge/list/{ver}")
+            if neoforgever.status_code == 200:
+                neolist=neoforgever.json()
+                if not neolist:
+                    return False
+                n1=[]
+                raw1=[]
+                for i in neolist:
+                    if 'beta' not in i['version'] and 'beta' not in i['rawVersion']:
+                        n1.append(i['version'])
+                        raw1.append(i['rawVersion'])
+                callback.get("setStatus",empty)("Downloading Neoforge Installer")
+                callback.get("setMax",empty)(1)
+                downURL=f"https://maven.neoforged.net/releases/net/neoforged/neoforge/{n1[0]}/neoforge-{n1[0]}-installer.jar"
+                if not os.path.exists(f"{defaultMinecraftDir}/versions/{raw1[0]}/neoforge-{n1[0]}-installer.jar"):
+                    wget.download(downURL,f"{defaultMinecraftDir}/versions/{raw1[0]}/neoforge-{n1[0]}-installer.jar")
+                callback.get("setProgress",empty)(1)
+                callback.get("setProgress",empty)(0)
+                callback.get("setMax",empty)(1)
+                callback.get("setStatus",empty)("Extracting Neoforge Installer")
+                zipf=zipfile.ZipFile(f"{defaultMinecraftDir}/versions/{raw1[0]}/neoforge-{n1[0]}-installer.jar")
+                zipf.extract(f"maven/net/neoforged/neoforge/{n1[0]}/{raw1[0]}-universal.jar",f"{defaultMinecraftDir}/versions/{raw1[0]}/")
+                zipf.extract("version.json",f"{defaultMinecraftDir}/versions/{raw1[0]}/")
+                os.rename(f"{defaultMinecraftDir}/versions/{raw1[0]}/{raw1[0]}-universal.jar",f"{defaultMinecraftDir}/versions/{raw1[0]}/{raw1[0]}.jar")
+                os.rename(f"{defaultMinecraftDir}/versions/{raw1[0]}/version.json",f"{defaultMinecraftDir}/versions/{raw1[0]}/{raw1[0]}.json")
+                zipf.close()
+                callback.get("setProgress",empty)(1)
+                versionjson=json.load(open(f"{defaultMinecraftDir}/versions/{raw1[0]}/{raw1[0]}.json"))
+                callback.get("setStatus",empty)("Downloading Neoforge Libraries")
+                callback.get("setMax",empty)(len(versionjson['libraries']))
+                for i in versionjson['libraries']:
+                    count=0
+                    if not os.path.exists(f"{defaultMinecraftDir}/libraries/{os.path.dirname(i['path'])}"):
+                        os.makedirs(f"{defaultMinecraftDir}/libraries/{os.path.dirname(i['path'])}")
+                    if not os.path.exists(f"{defaultMinecraftDir}/libraries/{i['path']}"):
+                        callback.get("setStatus",empty)(f"Downloading {i['path']}")
+                        wget.download(f"{i['downloads']['artifact']['url']}",f"{defaultMinecraftDir}/libraries/{i['path']}")
+                        count+=1
+                        callback.get("setProgress",empty)(count)
+                
+                
         def Download(ver):
             """TODo..."""
             callback={"setStatus":Minecraft.installMinecraft.set_status,"setProgress":Minecraft.installMinecraft.set_progress,"setMax":Minecraft.installMinecraft.set_max}
@@ -663,20 +772,33 @@ Minecraft Log
             with open("config.ini", "w") as configfile:
                 conf.write(configfile)
             print(Fore.GREEN + "Changes saved.")
-    def fetch_mods_from_modrinth(api_key):
-        url = "https://api.modrinth.com/v2/project"
+    def fetch_mods_from_modrinth():
+        url = "https://api.modrinth.com/v2/search"
         headers = {
-            "Accept": "application/json",
-            "Authorization": api_key
-        }
+            "limit": "1000",
+            "facets": "[[\"project_type\",\"mod\"]]",
+            }
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
-            mods = response.json()
+            mods = response.json()['hits']
             return mods
         else:
             print("Failed to fetch mods from Modrinth API")
             return []
 
+    def search_mods_from_modrinth(query):
+        url = f"https://api.modrinth.com/v2/search?query={query}"
+        headers = {
+            "limit": "1000",
+            "facets": "[[\"project_type\",\"mod\"]]",
+            }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            mods = response.json()['hits']
+            return mods
+        else:
+            print("Failed to fetch mods from Modrinth API")
+            return []
     @staticmethod
     def download_mod_from_modrinth(mod_id, game_version):
         url = f"https://api.modrinth.com/v2/project/{mod_id}/version"
@@ -686,7 +808,7 @@ Minecraft Log
             return
 
         versions = response.json()
-        compatible_versions = [v for v in versions if game_version in v["game_versions"]]
+        compatible_versions = [v for v in versions if game_version in v["game_versions"] and v["version_type"] == "release"]
         if not compatible_versions:
             print("No compatible versions found for the specified game version.")
             return
@@ -775,6 +897,9 @@ Minecraft Log
 {Fore.GREEN}modmenu {Fore.WHITE}(Beta)
 {Fore.WHITE}Fetch mods from CurseForge
 {Fore.CYAN}----------------------------------------------------
+{Fore.GREEN}searchmod {Fore.WHITE}(None)
+{Fore.WHITE}Search mods from CurseForge API
+{Fore.CYAN}----------------------------------------------------
 {Fore.GREEN}downmod {Fore.WHITE}(ModName GameVersion)(Beta)
 {Fore.WHITE}Download a mod from CurseForge
 {Fore.CYAN}----------------------------------------------------
@@ -784,8 +909,16 @@ Minecraft Log
 {Fore.GREEN}downmodrinth{Fore.WHITE} (ModID GameVersion)
 {Fore.WHITE}Download a mod from Modrinth
 {Fore.CYAN}----------------------------------------------------
-"""
-        
+{Fore.GREEN}skinmanager{Fore.WHITE} (None)
+{Fore.WHITE}Manage Minecraft skins
+{Fore.CYAN}----------------------------------------------------
+{Fore.GREEN}searchmodrinth{Fore.WHITE} (None)
+{Fore.WHITE}Search mods from Modrinth API
+{Fore.CYAN}----------------------------------------------------
+{Fore.GREEN}exit{Fore.WHITE} (None)
+{Fore.WHITE}Exit Minecraft-DOS
+{Fore.CYAN}----------------------------------------------------
+"""        
         print(Fore.CYAN + "Enter `help` for help")
         while True:
             try:
@@ -804,6 +937,13 @@ Minecraft Log
                     mods = Minecraft.fetch_mods_from_curseforge(api_key)
                     if mods:
                         print("Available Mods from CurseForge:")
+                        for mod in mods:
+                            print(f"- {mod['name']} ({mod['slug']})")
+                elif DOS == "searchmod":
+                    query = input("Enter search query: ")
+                    mods = Minecraft.search_mods_from_curseforge(query, api_key)
+                    if mods:
+                        print("Search results:")
                         for mod in mods:
                             print(f"- {mod['name']} ({mod['slug']})")
                 elif DOS == "checkdisk":
@@ -874,6 +1014,13 @@ Minecraft Log
                         print("Available Mods from Modrinth:")
                         for mod in mods:
                             print(f"- {mod['title']} ({mod['slug']})")
+                elif DOS == "searchmodrinth":
+                    query = input("Enter search query: ")
+                    mods = Minecraft.search_mods_from_modrinth(query)
+                    if mods:
+                        print("Search results:")
+                        for mod in mods:
+                            print(f"- {mod['title']} ({mod['slug']})")
                 elif DOS == "clear":
                     print("\033c",end="")
                 elif DOS == "refrver" or keyboard.is_pressed("f5"):
@@ -905,29 +1052,29 @@ Minecraft.Config_ini()
 
 def boot_sequence():
         Minecraft.OOO(Fore.CYAN + "Starting Minecraft-DOS...",1,0.05)
-        print("\n")
+        print("\n",end="")
         Minecraft.OOO(Fore.CYAN + "Initializing system components...",1,0.05)
-        print("\n")
+        print("\n",end="")
         Minecraft.OOO(Fore.CYAN + "Loading configurations...",1,0.05)
-        print("\n")
+        print("\n",end="")
         Minecraft.OOO(Fore.CYAN + "Checking network connectivity...",1,0.05)
-        print("\n")
+        print("\n",end="")
         if isnetconnect():
             print(Fore.GREEN + "Network connected")
-            print("\n")
+            print("\n",end="")
         else:
             print(Fore.RED + "No network connection")
-            print("\n")
+            print("\n",end="")
         Minecraft.OOO(Fore.CYAN + "Setting up environment...",1,0.05)
-        print("\n")
+        print("\n",end="")
         Minecraft.OOO(Fore.CYAN + "Launching Minecraft-DOS",1,0.05)
-        print("\n")
+        print("\n",end="")
         print(Fore.GREEN + "Minecraft-DOS is ready to use!")
-        print("\n")
+        print("\n",end="")
 
 boot_sequence()
 Minecraft.OOO(Fore.GREEN + "HIMEM is testing memory...",10,0.05)
-print("\n")
+print("\n",end="")
 Minecraft.Menu()
 print(f"Start time at {datetime.datetime.now()}")
 if not isnetconnect():
