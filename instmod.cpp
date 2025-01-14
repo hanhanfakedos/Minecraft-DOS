@@ -6,9 +6,10 @@ int main(){
   std::string pipCommand = "pip install -r requirements.txt";
   x=system(pipCommand.c_str());
   if (x != 0){
-    std::cout << "Python is not installed" << std::endl
+    std::cout << "Python is not installed" << std::endl;
   }
   else{
-    std::cout << "Packages is installed" << std::endl
+    std::cout << "Packages is installed" << std::endl;
   }
+  return 0;
 }
