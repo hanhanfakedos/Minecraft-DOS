@@ -93,6 +93,17 @@ def show_system_info():
     print(f"Version: {platform.version()}")
     print(f"Machine: {platform.machine()}")
     print(f"Processor: {platform.processor()}")
+def sysplatform():
+    if sys.platform == "win32" and platform.machine() == "AMD64":
+        return "windows-x64"
+    elif sys.platform == "linux" and platform.machine() == "AMD64":
+        return "linux"
+    elif sys.platform == "darwin" and platform.machine() == "AMD64":
+        return "mac-os"
+    elif sys.platform == "win32" and platform.machine() == "ARM64":
+        return "windows-arm64"
+    elif sys.platform == "darwin" and platform.machine() == "ARM64":
+        return "mac-os-arm64"
 class MinecraftSkins:
     def __init__(self):
         self.config = configparser.ConfigParser()
@@ -313,13 +324,14 @@ class Minecraft:
         else:
             conf.read("config.ini")
     def launcher_profile():
+
         profile = {
             "profiles": {
                 "DOSCraft": {
                     "name": "DOSCraft",
                     "gameDir": defaultMinecraftDir,
                     "lastVersionId": "1.17.1",
-                    "javaDir": if os.name == "nt":f"{os.environ['JAVA_HOME']}\\bin\\java.exe" else "/usr/bin/java",
+                    "javaDir": "java",
                     "javaArgs": "-client -Xmx4096m -Xms4096m -Xmn1536m -Xss1m -XX:-UseAdaptiveSizePolicy -XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump",
                     "allowedReleaseTypes": ["release", "snapshot", "old_beta", "old_alpha"],
                     "launcherVisibilityOnGameClose": "keep the launcher open"
@@ -328,7 +340,7 @@ class Minecraft:
                     "name": "32bit",
                     "gameDir": defaultMinecraftDir,
                     "lastVersionId": "1.8.9",
-                    "javaDir": if os.name == "nt":f"{os.environ['JAVA_HOME']}\\bin\\java.exe" else "/usr/bin/java",
+                    "javaDir": "java",
                     "javaArgs": "-client -Xmx1024m -Xms1024m -Xmn384m -Xss1m -XX:-UseAdaptiveSizePolicy -XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump",
                     "allowedReleaseTypes": ["release", "snapshot", "old_beta", "old_alpha"],
                     "launcherVisibilityOnGameClose": "keep the launcher open"
@@ -471,6 +483,30 @@ class Minecraft:
             print("Url not valid")
         global MSloginData
         MSloginData = minecraft_launcher_lib.microsoft_account.complete_login(clientid, None, redirecturi, auth_code, code_verifier)
+    
+    def javachecker(ver):
+        verlist=minecraft_launcher_lib.utils.get_version_list()
+        lst=[]
+        jrelegacy=[]
+        gamma=[]
+        delta=[]
+        for i in verlist:
+            lst.append(i['id'])
+        oldest=lst.index('rd-132211')
+        java8end=lst.index('21w19a')
+        java17end=lst.index('24w14a')
+        jrelegacy.append(lst[oldest:java8end])
+        gamma.append(lst[java8end:java17end])
+        delta.append(lst[java17end:])
+        if ver in jrelegacy:
+            return "jre-legacy"
+        elif ver in gamma:
+            return "java-runtime-gamma"
+        elif ver in delta:
+            return "java-runtime-delta"
+        else:
+            return False
+
 
     class installMinecraft(Thread):
         """Install a Minecraft version.Use Minecraft.installMinecraft.Download(U Version) to download"""
@@ -554,51 +590,7 @@ class Minecraft:
                             wget.download(s1[xc],f"{defaultMinecraftDir}/versions/{ver}/mods/{s2[xc]}")
                         break
                     except Exception as e:
-                        return "ERROR:::"+e
-        def installneoforged(ver,callback:dict):
-            """Neoforged and Forge is friends"""
-            minecraft_launcher_lib.install.install_minecraft_version(ver,defaultMinecraftDir,callback=callback)
-            neoforgever=requests.get(f"https://bmclapi2.bangbang93.com/neoforge/list/{ver}")
-            if neoforgever.status_code == 200:
-                neolist=neoforgever.json()
-                if not neolist:
-                    return False
-                n1=[]
-                raw1=[]
-                for i in neolist:
-                    if 'beta' not in i['version'] and 'beta' not in i['rawVersion']:
-                        n1.append(i['version'])
-                        raw1.append(i['rawVersion'])
-                callback.get("setStatus",empty)("Downloading Neoforge Installer")
-                callback.get("setMax",empty)(1)
-                downURL=f"https://maven.neoforged.net/releases/net/neoforged/neoforge/{n1[0]}/neoforge-{n1[0]}-installer.jar"
-                if not os.path.exists(f"{defaultMinecraftDir}/versions/{raw1[0]}/neoforge-{n1[0]}-installer.jar"):
-                    wget.download(downURL,f"{defaultMinecraftDir}/versions/{raw1[0]}/neoforge-{n1[0]}-installer.jar")
-                callback.get("setProgress",empty)(1)
-                callback.get("setProgress",empty)(0)
-                callback.get("setMax",empty)(1)
-                callback.get("setStatus",empty)("Extracting Neoforge Installer")
-                zipf=zipfile.ZipFile(f"{defaultMinecraftDir}/versions/{raw1[0]}/neoforge-{n1[0]}-installer.jar")
-                zipf.extract(f"maven/net/neoforged/neoforge/{n1[0]}/{raw1[0]}-universal.jar",f"{defaultMinecraftDir}/versions/{raw1[0]}/")
-                zipf.extract("version.json",f"{defaultMinecraftDir}/versions/{raw1[0]}/")
-                os.rename(f"{defaultMinecraftDir}/versions/{raw1[0]}/{raw1[0]}-universal.jar",f"{defaultMinecraftDir}/versions/{raw1[0]}/{raw1[0]}.jar")
-                os.rename(f"{defaultMinecraftDir}/versions/{raw1[0]}/version.json",f"{defaultMinecraftDir}/versions/{raw1[0]}/{raw1[0]}.json")
-                zipf.close()
-                callback.get("setProgress",empty)(1)
-                versionjson=json.load(open(f"{defaultMinecraftDir}/versions/{raw1[0]}/{raw1[0]}.json"))
-                callback.get("setStatus",empty)("Downloading Neoforge Libraries")
-                callback.get("setMax",empty)(len(versionjson['libraries']))
-                for i in versionjson['libraries']:
-                    count=0
-                    if not os.path.exists(f"{defaultMinecraftDir}/libraries/{os.path.dirname(i['path'])}"):
-                        os.makedirs(f"{defaultMinecraftDir}/libraries/{os.path.dirname(i['path'])}")
-                    if not os.path.exists(f"{defaultMinecraftDir}/libraries/{i['path']}"):
-                        callback.get("setStatus",empty)(f"Downloading {i['path']}")
-                        wget.download(f"{i['downloads']['artifact']['url']}",f"{defaultMinecraftDir}/libraries/{i['path']}")
-                        count+=1
-                        callback.get("setProgress",empty)(count)
-                
-                
+                        return "ERROR:::"+e         
         def Download(ver):
             """TODo..."""
             callback={"setStatus":Minecraft.installMinecraft.set_status,"setProgress":Minecraft.installMinecraft.set_progress,"setMax":Minecraft.installMinecraft.set_max}
@@ -686,9 +678,39 @@ class Minecraft:
         mods_dir = os.path.join(".minecraft", "mods")
         os.makedirs(mods_dir, exist_ok=True)
         dest_path = os.path.join(mods_dir, f"{mod_name}.jar")
-        Minecraft.download_file(file_url, dest_path)
+        wget.download(file_url, dest_path)
         print(f"Downloaded mod {mod_name} for Minecraft {game_version}.")
     class RunMinecraft(Thread):
+        def log4j(ver):
+            log4jconfig = """<Configuration status="WARN">
+    <Appenders>
+        <Console name="SysOut" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level]: %msg{nolookups}%n"/>
+        </Console>
+        <Queue name="ServerGuiConsole">
+            <PatternLayout pattern="[%d{HH:mm:ss} %level]: %msg{nolookups}%n"/>
+        </Queue>
+        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level]: %msg{nolookups}%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <OnStartupTriggeringPolicy/>
+            </Policies>
+        </RollingRandomAccessFile>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <filters>
+                <MarkerFilter marker="NETWORK_PACKETS" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </filters>
+            <AppenderRef ref="SysOut"/>
+            <AppenderRef ref="File"/>
+        </Root>
+    </Loggers>
+</Configuration>"""
+            if os.path.exists(f"{defaultMinecraftDir}/versions/{ver}/log4j2.xml") != True:
+                with open(f"{defaultMinecraftDir}/versions/{ver}/log4j2.xml", "w") as f:
+                    f.write(log4jconfig)
         """Use Minecraft.RunMinecraft.Run(U Version,Username,UUID,Token,Memory) to run"""
         def Run(ver, username, uuid, token, Xmx:int, authlib=False):
             """__TODo__"""
@@ -701,12 +723,14 @@ class Minecraft:
                 options["token"]=token
                 options["-d64"]=True
                 options["gameDirectory"] = f"{cwd}/.minecraft/versions/{ver}"
-                options["jvmArguments"] = ["-client",f"-Xmx{Xmx}m",f"-Xms{Xmx}m","-Xss1m","-XX:-UseAdaptiveSizePolicy","-XX:+UseG1GC","-XX:-UseAdaptiveSizePolicy","-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump"]
+                options["jvmArguments"] = ["-client",f"-Xmx{Xmx}m",f"-Xms{Xmx}m","-Xss1m",'-XX:+UnlockExperimentalVMOptions', '-XX:+UseG1GC', '-XX:G1NewSizePercent=20', '-XX:G1ReservePercent=20', '-XX:MaxGCPauseMillis=50', '-XX:G1HeapRegionSize=32m', '-XX:-UseAdaptiveSizePolicy', '-XX:-OmitStackTraceInFastThrow', '-XX:-DontCompileHugeMethods', '-Dfml.ignoreInvalidMinecraftCertificates=true', '-Dfml.ignorePatchDiscrepancies=true', '-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump']
                 if authlib:
                     options["jvmArguments"].append(f"-javaagent:{authlibPath}={YggdrasilURL}")
-                    options["-Dauthlibinjector.side"]='client'
-                    options["-Dauthlibinjector.yggdrasil.prefetched"]=AuthlibB64
-                minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(ver, defaultMinecraftDir , options)
+                    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(ver, defaultMinecraftDir , options)
+                    minecraft_command.insert(minecraft_command.index(f"-javaagent:{authlibPath}={YggdrasilURL}")+1,"-Dauthlibinjector.side:client")
+                    minecraft_command.insert(minecraft_command.index(f"-javaagent:{authlibPath}={YggdrasilURL}")+2,f"-Dauthlibinjector.yggdrasil.prefetched:{AuthlibB64}")
+                else:
+                    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(ver, defaultMinecraftDir , options)
                 print("Spawned Launcher CMD")
                 print(f"Run Minecraft With {minecraft_command}")
                 print("""DOS/4GW Protected Mode Runtime Version 1.97\nCopyright(c)Rational Systems, Inc. 1990-1994\n\nLoading MineCraft 3D\n(c)1991-2024 Mojang PC Repair and Software AB\n\nLoading MINECRAFT.JAR""")
@@ -718,7 +742,7 @@ Minecraft Log
                 subprocess.call(minecraft_command)
                 print("EXIT")
             except minecraft_launcher_lib.exceptions.VersionNotFound:
-                if Minecraft.ask_yes_no("Do you want install the version") == True:
+                if Minecraft.ask_yes_no("Do you want install the version"):
                     Minecraft.installMinecraft.Download(ver)
             except Exception as e:
                 print("ERROR!",e)
@@ -817,7 +841,7 @@ Minecraft Log
         mods_dir = os.path.join(".minecraft", "mods")
         os.makedirs(mods_dir, exist_ok=True)
         dest_path = os.path.join(mods_dir, f"{mod_id}.jar")
-        Minecraft.download_file(download_url, dest_path)
+        wget.download(download_url, dest_path)
         print(f"Downloaded mod {mod_id} for Minecraft {game_version}.")
 
     def AuthlibSign(URL,Username,Password):
@@ -847,8 +871,7 @@ Minecraft Log
         uuid1=conf["user"]["UUID"]
         token1=conf["user"]["Token"]
         Xmx1=conf["JVMMemory"]["Xmx"]
-        api_key = conf["api"]["CurseForgeAPIKey"]
-        modrinth_api_key = conf.get("api", "ModrinthAPIKey", fallback=None)
+        api_key = "$2a$10$6.P/W1SuOQxOsPnsqHYHc.01wQN.duMd2nxrYwOJJCP4nKhLXEdza"
         helpf=f"""
 {Fore.YELLOW}Minecraft-DOS Help documents
 {Fore.CYAN}----------------------------------------------------
@@ -923,11 +946,11 @@ Minecraft Log
         while True:
             try:
                 DOS = input(f"{cwd}:>>> ")
-                if DOS.startswith('download '):
+                if DOS.startswith('download'):
                     Vers = DOS.split(" ")[1]
                     Minecraft.installMinecraft.Download(Vers)
-                elif DOS.startswith('launch '):
-                    parts = DOS_command.split(" ")
+                elif DOS.startswith('launch'):
+                    parts = DOS.split(" ")
                     version = parts[1]
                     username = parts[2] if len(parts) > 2 else username1
                     Minecraft.RunMinecraft.Run(version, username, uuid1, token1, Xmx1)                        
@@ -954,7 +977,7 @@ Minecraft Log
                     ver=DOS.split(" ")[1]
                     Minecraft.uninstall_minecraft_version(ver)
                 elif DOS == 'modmenu':
-                    Minecraft.fecth_mods_form_curseforge(api_key)
+                    Minecraft.fecth_mods_from_curseforge(api_key)
                 elif DOS == "listver":
                     print(Fore.CYAN + "List versions\nTypes:\n(1)Release\n(2)Snapshot\n(3)Old Alpha\n(4)Exit\n(Can Multi choose)")
                     while True:
@@ -1071,7 +1094,7 @@ def boot_sequence():
         print("\n",end="")
         print(Fore.GREEN + "Minecraft-DOS is ready to use!")
         print("\n",end="")
-
+Minecraft.launcher_profile()
 boot_sequence()
 Minecraft.OOO(Fore.GREEN + "HIMEM is testing memory...",10,0.05)
 print("\n",end="")
