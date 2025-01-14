@@ -1,0 +1,6 @@
+minecraft_launcher_lib
+wget
+keyboard
+requests
+colorama
+PIL
