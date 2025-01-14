@@ -42,49 +42,27 @@
 To run the script, use the following command:
 python MC.py
 Commands Available in Minecraft-DOS:
-==============================================================
 listver: List all available Minecraft versions
-==============================================================
 download <version>: Download a specific Minecraft version
-==============================================================
 launch <version>: Launch a specific Minecraft version
-==============================================================
 config: Configure your profile
-==============================================================
 clear: Clear the console
-==============================================================
 refrver or F5: Refresh installed versions
-==============================================================
 mslogin: Microsoft account login
-==============================================================
 authlib: Authlib-Injector Yggdrasil Sign
-==============================================================
 alaunch <version>: Launch Minecraft with Authlib-Injector
-==============================================================
 mslaunch <version>: Launch Minecraft with Microsoft Account
-==============================================================
 modsmenu: Display available mods from CurseForge API
-==============================================================
 checkdisk: Check available disk space
-==============================================================
 sysinfo: Show system information
-==============================================================
 uninstall <version>: Uninstall a specific Minecraft version
-==============================================================
 modmenu: Fetch mods from CurseForge
-==============================================================
 downmod <ModName> <GameVersion>: Download a mod from CurseForge
-==============================================================
 modrinth: Display available mods from Modrinth API
-==============================================================
 downmodrinth <ModID> <GameVersion>: Download a mod from Modrinth
-==============================================================
 skinmanager: Manage Minecraft skins
-==============================================================
 help: Show help documentation
-==============================================================
 exit: Exit the application
-==============================================================
 
 ## Minecraft History
 Minecraft is a sandbox video game developed and published by Mojang. The game was created by Markus "Notch" Persson in the Java programming language. It was publicly released for the first time on May 17, 2009, and after gradual updates, it was fully released on November 18, 2011. Microsoft purchased Mojang and the intellectual property of Minecraft in 2014 for $2.5 billion.
