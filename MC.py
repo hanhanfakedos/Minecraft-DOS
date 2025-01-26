@@ -1,3 +1,17 @@
+# +-------------------------------------------------------------------------+
+# | @   @ @                                 @@             @@@    @@@   @@@ |
+# | @@ @@                                  @               @  @  @   @ @   @|
+# | @ @ @ @ @@@@   @@@   @@@  @ @@@  @@@   @    @          @   @ @   @ @    |
+# | @   @ @ @   @ @   @ @   @ @@        @ @@@  @@@  @@@@@  @   @ @   @  @@@ |
+# | @   @ @ @   @ @@@@@ @     @      @@@@  @    @          @   @ @   @     @|
+# | @   @ @ @   @ @     @   @ @     @   @  @    @          @  @  @   @ @   @|
+# | @   @ @ @   @  @@@   @@@  @      @@@@  @     @         @@@    @@@   @@@ |
+# +-------------------------------------------------------------------------+
+# CopyRight(c) 2018-2025 HomingThistle3770
+# All Right Reserved
+# "Minecraft" is American Microsoft Corporation's name
+# "DOS" is Disk Operating System
+#!/usr/bin/env python3
 #-*- coding:utf-8 -*-
 import os
 import subprocess
@@ -6,11 +20,10 @@ import datetime
 import sys
 import json
 import time
-import zipfile
 import configparser
 import platform
+import zipfile
 import socket
-import tempfile
 import base64
 import webbrowser
 import shutil
@@ -39,7 +52,7 @@ except ModuleNotFoundError:
     from PIL import Image
 
 if platform.architecture()[0] == '32bit':
-    print("Sorry,The system is unsupport this version")
+    print("The system is unsupport this DOS")
     exit()
 
 def empty(*args):
@@ -54,8 +67,6 @@ try:
     os.makedirs(rf"{cwd}/.minecraft/versions")
 except FileExistsError:
     pass
-
-tempfolder=tempfile.mkdtemp("Minecraft-DOS")
 
 start=time.perf_counter()
 defaultMinecraftDir=rf"{cwd}/.minecraft"
@@ -104,6 +115,77 @@ def sysplatform():
         return "windows-arm64"
     elif sys.platform == "darwin" and platform.machine() == "ARM64":
         return "mac-os-arm64"
+class neoforged:
+    def fetchneoforgedlver(ver:str):
+        try:
+            url = f"https://bmclapi2.bangbang93.com/neoforge/list/{ver}"
+            response = requests.get(url)
+            vers=[]
+            rawvers=[]
+            if response.status_code == 200:
+                for i in response.json():
+                    vers.append(i['version'])
+                    rawvers.append(i['rawVersion'])
+                    return vers[-1]
+            else:
+                print("Failed to fetch Neoforge versions")
+                return []
+        except Exception as e:
+            print(f"Error fetching Neoforge versions: {e}")
+            return []
+    def downloadneoforged(mcver:str,ver:str,Callback:dict=None):
+        try:
+            if not os.path.exists(f"{defaultMinecraftDir}/versions/neoforge-{ver}"):
+                os.makedirs(rf"{defaultMinecraftDir}/versions/neoforge-{ver}")
+            Callback.get("setStatus")("Downloading Neoforged installer...")
+            Callback.get("setMax")(1)
+            Callback.get("setProgress")(0)
+            url=f"https://maven.neoforged.net/releases/net/neoforged/neoforge/neoforge-{ver}/neoforge-{ver}-installer.jar"
+            if not os.path.exists(f"{defaultMinecraftDir}/versions/neoforge-{ver}/neoforge-{ver}-installer.jar"):
+                wget.download(url,f"{defaultMinecraftDir}/versions/neoforge-{ver}/neoforge-{ver}-installer.jar")
+            zipf = zipfile.ZipFile(f"{defaultMinecraftDir}/versions/neoforge-{ver}/neoforge-{ver}-installer.jar")
+            zipf.extract("version.json",f"{defaultMinecraftDir}/versions/neoforge-{ver}/")
+            zipf.close()
+            os.remove(f"{defaultMinecraftDir}/versions/neoforge-{ver}/neoforge-{ver}-installer.jar")
+            Callback.get("setProgress")(1)
+            Callback.get("setStatus")("Getting Neoforged version...")
+            Callback.get("setMax")(1)
+            Callback.get("setProgress")(0)
+            url2=f"https://maven.neoforged.net/releases/net/neoforged/neoforge/neoforge-{ver}/neoforge-{ver}-universal.jar"
+            if not os.path.exists(f"{defaultMinecraftDir}/versions/neoforge-{ver}/neoforge-{ver}-universal.jar"):
+                wget.download(url2,f"{defaultMinecraftDir}/versions/neoforge-{ver}/neoforge-{ver}-universal.jar")
+            Callback.get("setProgress")(1)
+            versionjson=json.load(open(f"{defaultMinecraftDir}/versions/neoforge-{ver}/version.json"))
+            Callback.get("setStatus")("Downloading Libraries...")
+            Callback.get("setMax")(len(versionjson['libraries']))
+            count=0
+            for i in versionjson['libraries']:
+                wget.download(i["downloads"]["artifact"]['url'],f"{defaultMinecraftDir}/libraries/{i["downloads"]["artifact"]['path']}")
+                count+=1
+                Callback.get("setProgress")(count)
+            shutil.copy(f"{defaultMinecraftDir}/versions/{mcver}/{mcver}.json",f"{defaultMinecraftDir}/versions/neoforge-{ver}/{mcver}.json")
+            defaultjson=json.load(open(f"{defaultMinecraftDir}/versions/neoforge-{ver}/{mcver}.json"))
+            Callback.get("setStatus")("Merging Libraries...")
+            for i in defaultjson['libraries']:
+                versionjson['libraries'].append(i)
+            runnow=[]
+            for i in versionjson['libraries']:
+                runnow.append(i['downloads']['artifact']['path'].split("/")[-3])
+            runnow=list(set(runnow))
+            newversionjson=versionjson
+            newversionjson['libraries']=[]
+            for i in versionjson['libraries']:
+                if i['downloads']['artifact']['path'].split("/")[-3] in runnow:
+                    runnow.remove(i['downloads']['artifact']['path'].split("/")[-3])
+                    newversionjson['libraries'].append(i)
+                else:
+                    pass
+            with open(f"{defaultMinecraftDir}/versions/neoforge-{ver}/{ver}.json","w") as f:
+                json.dump(newversionjson,f,indent=4)
+            Callback.get("setStatus")("Installed")
+        except Exception as e:
+            print(f"Error downloading Neoforge: {e}")
+            return []
 class MinecraftSkins:
     def __init__(self):
         self.config = configparser.ConfigParser()
@@ -314,9 +396,6 @@ class Minecraft:
             "UUID":f"{UserUUID}",
             "Token":f"{UserUUID}",
             }
-        conf["api"]={
-            "CurseForgeAPIKey":'$2a$10$6.P/W1SuOQxOsPnsqHYHc.01wQN.duMd2nxrYwOJJCP4nKhLXEdza'
-            }
         if os.path.exists("config.ini") != True:
             with open("config.ini","w") as confFile:
                 conf.write(confFile)
@@ -462,14 +541,17 @@ class Minecraft:
                 VERSIONSna.append(abc["id"])
             else:
                 VERSIONBeta.append(abc["id"])
-
+        print(Fore.CYAN + "===================================================================")
         if types == "release":
             for z in VERSIONRel:
-                print(f"""\nThere Minecraft version is ready:\n----------------------------------------------------\nreleases:\n{z}\n----------------------------------------------------""")
+                print(Fore.MAGENTA+f"""-{z}""")
         elif types == "snapshot":
-            for s in VERSIONSna:print(f"""\nThere Minecraft version is ready:\n----------------------------------------------------\nreleases:\n{s}\n----------------------------------------------------""")
+            for s in VERSIONSna:
+                print(Fore.MAGENTA+f"""-{s}""")
         else:
-            for s0 in VERSIONBeta:print(f"""\nThere Minecraft version is ready:\n----------------------------------------------------\nreleases:\n{s0}\n----------------------------------------------------""")
+            for s0 in VERSIONBeta:
+                print(Fore.MAGENTA+f"""-{s0}""")
+        print(Fore.CYAN + "===================================================================")
     def MSLogin():
         login_url, state, code_verifier = minecraft_launcher_lib.microsoft_account.get_secure_login_data(clientid, redirecturi)
         print(f"copy the url you are redirected into the prompt below.")
@@ -530,27 +612,39 @@ class Minecraft:
             global current_max
             current_max = new_max
 
-        def optifine(ver):
+        def optifine(ver,callback:dict=None):
             """Forge+Optifine==Best group"""
             x=minecraft_launcher_lib.forge.find_forge_version(ver)
             x2=x.split("-")[1]
+            callback.get("setStatus")("Searching OptiFine...")
+            callback.get("setMax")(1)
+            callback.get("setProgress")(0)
             optifineURL=requests.get(f"https://bmclapi2.bangbang93.com/optifine/{ver}").json()
+            callback.get("setProgress")(1)
             f3=[]
+            callback.get("setStatus")("Downloading OptiFine...")
+            callback.get("setMax")(1)
+            callback.get("setProgress")(0)
             if not optifineURL:
                 print("unavaliable")
+                callback.get("setStatus")("Unavaliable")
+                return "Unavaliable"
             for i in optifineURL:
                 if not 'pre' in i['patch']:
                     f3.append("OptiFine_{}_{}_{}.jar".format(i['mcversion'],i['type'],i['patch']))
             print("Avaliable version:{}".format(f3[-1]))
             if not os.path.exists(f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods"):
                 os.makedirs(f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods")
-            while True:
-                b=input("Select version(if not to exit)")
-                if not os.path.exists(f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods/optifine.jar"):
-                    wget.download(f"https://bmclapi2.bangbang93.com/maven/com/optifine/{ver}/{f3[-1]}",f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods/optifine.jar")
+            elif not os.path.exists(f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods/optifine.jar"):
+                wget.download(f"https://bmclapi2.bangbang93.com/maven/com/optifine/{ver}/{f3[-1]}",f"{defaultMinecraftDir}/versions/{ver}-forge-{x2}/mods/optifine.jar")
+            callback.get("setProgress")(1)
+            callback.get("setStatus")("Downloaded")
 
-        def fabricAPI(ver):
+        def fabricAPI(ver,callback:dict=None):
             """Fabric mods need Fabric API"""
+            callback.get("setStatus")("Searching Fabric API...")
+            callback.get("setMax")(1)
+            callback.get("setProgress")(0)
             avver=requests.get("https://api.modrinth.com/v2/project/P7dR8mSH/version").json()
             c1=[]
             c2=[]
@@ -565,8 +659,8 @@ class Minecraft:
                 while True:
                     try:
                         xc=int(input("Input a number"))
-                        if not os.path.exists(f"{defaultMinecraftDir}/versions/{ver}/mods/{c2[xc]}"):
-                            wget.download(c1[xc],f"{defaultMinecraftDir}/versions/{ver}/mods/{c2[xc]}")
+                        if not os.path.exists(f"{defaultMinecraftDir}/versions/fabric-loader-{ver}/mods/{c2[xc]}"):
+                            wget.download(c1[xc],f"{defaultMinecraftDir}/versions/fabric-loader-{ver}/mods/{c2[xc]}")
                         break
                     except Exception as e:
                         print("ERROR:::",e)
@@ -591,52 +685,130 @@ class Minecraft:
                         break
                     except Exception as e:
                         return "ERROR:::"+e         
-        def Download(ver):
+        def Download(ver,args=None):
             """TODo..."""
             callback={"setStatus":Minecraft.installMinecraft.set_status,"setProgress":Minecraft.installMinecraft.set_progress,"setMax":Minecraft.installMinecraft.set_max}
-            try:
-                while True:
-                    ifmodload=input("Select modloader:\nfo.Forge\nfa.Fabric\nq.quilt\nv.vanilla\n0.no install\n>>>")
-                    if ifmodload.lower() == "fo":
+            if args:
+                args2=args.split(" ")
+                if "--forge" in args2:
+                    if "--optifine" in args2:
                         if minecraft_launcher_lib.forge.find_forge_version(ver) != None:
                             minecraft_launcher_lib.forge.install_forge_version(minecraft_launcher_lib.forge.find_forge_version(ver),defaultMinecraftDir,callback=callback)
                             print(f"\nSuccess Install Forge {minecraft_launcher_lib.forge.find_forge_version(ver)}")
-                            if Minecraft.ask_yes_no("Download optifine?>>>"):
-                                Minecraft.installMinecraft.optifine(ver)
-                                break
-                            else:
-                                break
+                            Minecraft.installMinecraft.optifine(ver)
                         else:
                             print("Unsupport version",ver)
-                    elif ifmodload.lower() == "fa":
+                    else:
+                        if minecraft_launcher_lib.forge.find_forge_version(ver) != None:
+                            minecraft_launcher_lib.forge.install_forge_version(minecraft_launcher_lib.forge.find_forge_version(ver),defaultMinecraftDir,callback=callback)
+                            print(f"\nSuccess Install Forge {minecraft_launcher_lib.forge.find_forge_version(ver)}")
+                        else:
+                            print("Unsupport version",ver)
+                elif "--fabric" in args2:
+                    if "--sodium" in args2:
                         if minecraft_launcher_lib.fabric.is_minecraft_version_supported(ver):
                             minecraft_launcher_lib.fabric.install_fabric(ver, defaultMinecraftDir, callback=callback)
                             print(f"\nSuccess Install {ver}")
-                            if Minecraft.ask_yes_no("Download fabric api and sodium?>>>"):
-                                Minecraft.installMinecraft.fabricAPI(ver)
-                                Minecraft.installMinecraft.sodium(ver)
+                            Minecraft.installMinecraft.fabricAPI(ver)
+                            Minecraft.installMinecraft.sodium(ver)
+                        else:
+                            print("Unsupport version",ver)
+                    else:
+                        if minecraft_launcher_lib.fabric.is_minecraft_version_supported(ver):
+                            minecraft_launcher_lib.fabric.install_fabric(ver, defaultMinecraftDir, callback=callback)
+                            print(f"\nSuccess Install {ver}")
+                            Minecraft.installMinecraft.fabricAPI(ver)
+                        else:
+                            print("Unsupport version",ver)
+                elif "--quilt" in args2:
+                    if minecraft_launcher_lib.quilt.is_minecraft_version_supported(ver):
+                        minecraft_launcher_lib.quilt.install_quilt(ver,defaultMinecraftDir,callback=callback)
+                        print(f"\nSuccess Install {ver}")
+                    else:
+                        print("Unsupport version",ver)
+                elif "--neoforge" in args2:
+                    if neoforged.fetchneoforgedlver:
+                        neoforged.downloadneoforged(ver,neoforged.fetchneoforgedlver(ver),callback)
+                    else:
+                        print("Unsupport Version",ver)
+                elif "--vanilla" in args2:
+                    minecraft_launcher_lib.install.install_minecraft_version(ver, defaultMinecraftDir, callback=callback)
+                    print(f"\nSuccess Install {ver}")
+                elif "--help" in args2:
+                    print(f"""{Fore.YELLOW}ARGS DOCUMATION
+{Fore.CYAN}+------------------------------------------+
+{Fore.GREEN}| --forge[--optifine]                      |
+{Fore.WHITE}| Install Forge[and optifine]              |
+{Fore.CYAN}+------------------------------------------+
+{Fore.GREEN}| --fabric[--sodium]                       |
+{Fore.WHITE}| Install Fabric+API[and sodium]           |
+{Fore.CYAN}+------------------------------------------+
+{Fore.GREEN}| --quilt                                  |
+{Fore.WHITE}| Install Quilt                            |
+{Fore.CYAN}+------------------------------------------+
+{Fore.GREEN}| --neoforge                               |
+{Fore.WHITE}| Install Neoforged                        |
+{Fore.CYAN}+------------------------------------------+
+{Fore.GREEN}| --vanilla                                |
+{Fore.WHITE}| Install Vanilla                          |
+{Fore.CYAN}+------------------------------------------+
+{Fore.GREEN}| --help                                   |
+{Fore.WHITE}| Help documents                           |
+{Fore.CYAN}+------------------------------------------+""")
+                else:
+                    print(f"{Fore.RED}Input `--help` to help")
+            else:
+                try:
+                    while True:
+                        ifmodload=input("Select modloader:\nfo.Forge\nfa.Fabric\nq.quilt\nv.vanilla\n0.no install\n>>>")
+                        if ifmodload.lower() == "fo":
+                            if minecraft_launcher_lib.forge.find_forge_version(ver) != None:
+                                minecraft_launcher_lib.forge.install_forge_version(minecraft_launcher_lib.forge.find_forge_version(ver),defaultMinecraftDir,callback=callback)
+                                print(f"\nSuccess Install Forge {minecraft_launcher_lib.forge.find_forge_version(ver)}")
+                                if Minecraft.ask_yes_no("Download optifine?>>>"):
+                                    Minecraft.installMinecraft.optifine(ver)
+                                    break
+                                else:
+                                    break
+                            else:
+                                print("Unsupport version",ver)
+                        elif ifmodload.lower() == "fa":
+                            if minecraft_launcher_lib.fabric.is_minecraft_version_supported(ver):
+                                minecraft_launcher_lib.fabric.install_fabric(ver, defaultMinecraftDir, callback=callback)
+                                print(f"\nSuccess Install {ver}")
+                                if Minecraft.ask_yes_no("Download fabric api and sodium?>>>"):
+                                    Minecraft.installMinecraft.fabricAPI(ver)
+                                    Minecraft.installMinecraft.sodium(ver)
+                                    break
+                                else:
+                                    break
+                            else:
+                                print("Unsupport version",ver)
+                        elif ifmodload.lower() == "q":
+                            if minecraft_launcher_lib.quilt.is_minecraft_version_supported(ver):
+                                minecraft_launcher_lib.quilt.install_quilt(ver,defaultMinecraftDir,callback=callback)
+                                print(f"\nSuccess Install {ver}")
                                 break
                             else:
-                                break
-                        else:
-                            print("Unsupport version",ver)
-                    elif ifmodload.lower() == "q":
-                        if minecraft_launcher_lib.quilt.is_minecraft_version_supported(ver):
-                            minecraft_launcher_lib.quilt.install_quilt(ver,defaultMinecraftDir,callback=callback)
+                                print("Unsupport version",ver)
+                        elif ifmodload.lower() == "v":
+                            minecraft_launcher_lib.install.install_minecraft_version(ver, defaultMinecraftDir, callback=callback)
                             print(f"\nSuccess Install {ver}")
                             break
+                        elif ifmodload == "0":
+                            break
                         else:
-                            print("Unsupport version",ver)
-                    elif ifmodload.lower() == "v":
-                        minecraft_launcher_lib.install.install_minecraft_version(ver, defaultMinecraftDir, callback=callback)
-                        print(f"\nSuccess Install {ver}")
-                        break
-                    elif ifmodload == "0":
-                        break
-                    else:
-                        print("Input fo/fa/q/v or 0")
-            except Exception as e:
-                print("FOUND A ERROR:",e)
+                            print("Input fo/fa/q/v or 0")
+                except Exception as e:
+                    print("FOUND A ERROR:",e)
+        class installMrpack(Thread):
+            def mrpackinfor(path):
+                information = minecraft_launcher_lib.mrpack.get_mrpack_information(path)
+                print(f"Name: {information['name']}")
+                print(f"Summary: {information['summary']}")
+            def mrpackinstall(path):
+                callback={"setStatus":Minecraft.installMinecraft.set_status,"setProgress":Minecraft.installMinecraft.set_progress,"setMax":Minecraft.installMinecraft.set_max}
+                minecraft_launcher_lib.mrpack.install_mrpack(path, defaultMinecraftDir, callback=callback)
     def uninstall_minecraft_version(version):
         version_dir = os.path.join(".minecraft", "versions", version)
         if os.path.exists(version_dir):
@@ -712,7 +884,7 @@ class Minecraft:
                 with open(f"{defaultMinecraftDir}/versions/{ver}/log4j2.xml", "w") as f:
                     f.write(log4jconfig)
         """Use Minecraft.RunMinecraft.Run(U Version,Username,UUID,Token,Memory) to run"""
-        def Run(ver, username, uuid, token, Xmx:int, authlib=False):
+        def Run(ver, username, uuid, token, Xmx:int, authlib=False,args:list=None):
             """__TODo__"""
             try:
                 options = minecraft_launcher_lib.utils.generate_test_options()
@@ -729,6 +901,8 @@ class Minecraft:
                     minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(ver, defaultMinecraftDir , options)
                     minecraft_command.insert(minecraft_command.index(f"-javaagent:{authlibPath}={YggdrasilURL}")+1,"-Dauthlibinjector.side:client")
                     minecraft_command.insert(minecraft_command.index(f"-javaagent:{authlibPath}={YggdrasilURL}")+2,f"-Dauthlibinjector.yggdrasil.prefetched:{AuthlibB64}")
+                elif args:
+                    options["jvmArguments"]=args
                 else:
                     minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(ver, defaultMinecraftDir , options)
                 print("Spawned Launcher CMD")
@@ -864,6 +1038,42 @@ Minecraft Log
                 conf.write(configfile)
         else:
             print("ERROR:",requestJson["errorMessage"])
+    def copyrightandthanks():
+        x="""Minecraft-DOS
+Version:0.01Beta
+Author:HomingThistle3770
+Thanks to:
+-minecraft_launcher_lib
+-requests
+-colorama
+-wget
+-urllib
+-mojang
+-Modrinth
+-CurseForge
+-OptiFine
+-Sodium
+-Fabric
+-Forge
+-Quilt
+-Authlib-Injector(Yushijinhun)
+-Microsoft
+-Github Copilot:)"""     
+        x2="""Copyright:
+Minecraft-DOS (0.01Beta) 
+(c)2021-2025 HomingThistle3770  All rights reserved.
+
+Python 3.13.1
+(c)1991-2025 Python Software Foundation - Guido van Rossum. All rights reserved.
+
+Minecraft
+(c)2009-2025 Mojang AB. Do not distribute.
+
+MS-DOS
+(c)1975-2025 Microsoft Corporation. All rights reserved.
+
+Github Copilot
+(c)2021-2025 Github Inc. All rights reserved."""
     def DOS():
         conf = configparser.ConfigParser()
         conf.read("config.ini")
@@ -947,38 +1157,60 @@ Minecraft Log
             try:
                 DOS = input(f"{cwd}:>>> ")
                 if DOS.startswith('download'):
-                    Vers = DOS.split(" ")[1]
-                    Minecraft.installMinecraft.Download(Vers)
+                    if len(DOS.split(" ")) > 2:
+                        Vers = DOS.split(" ")[1]
+                        Minecraft.installMinecraft.Download(Vers,DOS.replace(f"download {Vers} ",""))
+                    elif len(DOS.split(" ")) == 2:
+                        Vers = DOS.split(" ")[1]
+                        Minecraft.installMinecraft.Download(Vers)
+                    else:
+                        print("Incorrect")
                 elif DOS.startswith('launch'):
                     parts = DOS.split(" ")
                     version = parts[1]
-                    username = parts[2] if len(parts) > 2 else username1
-                    Minecraft.RunMinecraft.Run(version, username, uuid1, token1, Xmx1)                        
-                elif DOS == "config":
+                    if len(parts) > 2:
+                        args=parts[2:]
+                        if '-u' in args and '--custom-args' not in args:
+                            username=args[args.index('-u')+1]
+                            Minecraft.RunMinecraft.Run(version, username, uuid1, token1, Xmx1)
+                        elif '--custom-args' in args and '-u' not in args:
+                            customarg=args[args.index('--custom-args')+1:]
+                            username=username1
+                            Minecraft.RunMinecraft.Run(version, username, uuid1, token1, Xmx1, args=customarg)
+                        elif '--custom-args' in args and '-u' in args:
+                            customarg=args[args.index('--custom-args')+1:]
+                            username=args[args.index('-u')+1]
+                            Minecraft.RunMinecraft.Run(version, username, uuid1, token1, Xmx1, args=customarg)
+                        else:
+                            username=username1
+                            Minecraft.RunMinecraft.Run(version,username,uuid1,token1,Xmx1)
+                elif DOS.startswith("config"):
                     Minecraft.ConfPanel()
-                elif DOS == "modsmenu":
+                elif DOS.startswith("modsmenu"):
                     mods = Minecraft.fetch_mods_from_curseforge(api_key)
                     if mods:
                         print("Available Mods from CurseForge:")
                         for mod in mods:
                             print(f"- {mod['name']} ({mod['slug']})")
-                elif DOS == "searchmod":
+                elif DOS.startswith("searchmod"):
                     query = input("Enter search query: ")
                     mods = Minecraft.search_mods_from_curseforge(query, api_key)
                     if mods:
                         print("Search results:")
                         for mod in mods:
                             print(f"- {mod['name']} ({mod['slug']})")
-                elif DOS == "checkdisk":
+                elif DOS.startswith("checkdisk"):
                     check_disk_space()
-                elif DOS == "sysinfo":
+                elif DOS.startswith("sysinfo"):
                     show_system_info()
+                elif DOS.startswith("pythonsfather"):
+                    print("Guido van Rossum")
                 elif DOS.startswith("uninstall"):
                     ver=DOS.split(" ")[1]
                     Minecraft.uninstall_minecraft_version(ver)
-                elif DOS == 'modmenu':
+                elif DOS.startswith('modmenu'):
                     Minecraft.fecth_mods_from_curseforge(api_key)
-                elif DOS == "listver":
+                elif DOS.startswith("listver"):
                     print(Fore.CYAN + "List versions\nTypes:\n(1)Release\n(2)Snapshot\n(3)Old Alpha\n(4)Exit\n(Can Multi choose)")
                     while True:
                         listVer=input("Choice a types of versions>>>")
@@ -995,7 +1227,7 @@ Minecraft Log
                             break
                         else:
                             print("invalid")
-                elif DOS == "mslogin":
+                elif DOS.startswith("mslogin"):
                     Minecraft.MSLogin()
                     conf = configparser.ConfigParser()
                     conf.read("config.ini")
@@ -1004,26 +1236,39 @@ Minecraft Log
                     conf["userMS"]["Token"]=MSloginData["access_token"]
                     with open("config.ini", "w") as configfile:
                         conf.write(configfile)
-                elif DOS.startswith('mslaunch '):
+                elif DOS.startswith('mslaunch'):
                     Vers21=DOS.split(" ")[1]
                     conf = configparser.ConfigParser()
                     conf.read("config.ini")
                     Minecraft.RunMinecraft.Run(Vers21,conf["userMS"]["Username"],conf["userMS"]["UUID"],conf["userMS"]["Token"],Xmx1,authlib=True)
-                elif DOS == "authlib":
-                    email = input("Email:")
-                    passwd = input("Password:")
+                elif DOS.startswith("authlib"):
+                    if len(DOS.split(" ")) > 1:
+                        args=DOS.split(" ")[1:]
+                        if '-e' in args and '-p' in args:
+                            email=args[args.index('-e')+1]
+                            passwd=args[args.index('-p')+1]
+                        elif '-e' in args and '-p' not in args:
+                            email=args[args.index('-e')+1]
+                            passwd=input("Password:")
+                        elif '-p' in args and '-e' not in args:
+                            email=input("Email:")
+                            passwd=args[args.index('-p')+1]
+                        elif '-h' in args or '-?' in args:
+                            print(f"{Fore.CYAN}ARGS Help doc\n+------------------------------------------------------+\n| '-e <somename@example.com>'            Your Email    |\n| '-p <password>'                        Your Password |\n| '-h' or '-?'                           Help Docs     |\n+------------------------------------------------------+")
+                    else:
+                        email = input("Email:")
+                        passwd = input("Password:")
                     Minecraft.AuthlibSign(YggdrasilURL, email, passwd)
                 elif DOS.startswith('alaunch '):
-                    c=DOS.lower()
                     Vers21=DOS.split(" ")[1]
                     conf = configparser.ConfigParser()
                     conf.read("config.ini")
                     Minecraft.RunMinecraft.Run(Vers21,conf["userAuthlib"]["Username"],conf["userAuthlib"]["UUID"],conf["userAuthlib"]["Token"],Xmx1,authlib=True)
-                elif DOS == 'skinmanager':
+                elif DOS.startswith('skinmanager'):
                     Minecraft.skin_manager_interface()
-                elif DOS == "help":
+                elif DOS.startswith("help"):
                     print(helpf)
-                elif DOS.startswith("downmodrinth "):
+                elif DOS.startswith("downmodrinth"):
                     parts = DOS.split(" ")
                     if len(parts) == 3:
                         mod_id = parts[1]
@@ -1031,27 +1276,33 @@ Minecraft Log
                         Minecraft.download_mod_from_modrinth(mod_id, game_version)
                     else:
                         print("Usage: downmodrinth <ModID> <GameVersion>")
-                elif DOS == "modrinth":
-                    mods = Minecraft.fetch_mods_from_modrinth(modrinth_api_key)
+                elif DOS.startswith("modrinth"):
+                    mods = Minecraft.fetch_mods_from_modrinth()
                     if mods:
                         print("Available Mods from Modrinth:")
                         for mod in mods:
                             print(f"- {mod['title']} ({mod['slug']})")
-                elif DOS == "searchmodrinth":
-                    query = input("Enter search query: ")
+                elif DOS.startswith("searchmodrinth"):
+                    if len(DOS.split(" ")) == 1:
+                        query = input("Enter search query: ")
+                    elif len(DOS.split(" ")) == 2:
+                        query = DOS.split(" ")[1]
+                    else:
+                        print("Invalid syntax. Usage: searchmodrinth [query] or searchmodrinth")
+                        continue
                     mods = Minecraft.search_mods_from_modrinth(query)
                     if mods:
                         print("Search results:")
                         for mod in mods:
                             print(f"- {mod['title']} ({mod['slug']})")
-                elif DOS == "clear":
+                elif DOS.startswith("clear"):
                     print("\033c",end="")
-                elif DOS == "refrver" or keyboard.is_pressed("f5"):
+                elif DOS.startswith("refrver") or keyboard.is_pressed("f5"):
                     minecraft_launcher_lib.utils.get_installed_versions(defaultMinecraftDir)
                     time.sleep(0.5)
-                elif DOS == '':
+                elif DOS == "":
                     pass
-                elif DOS.startswith("downmod "):
+                elif DOS.startswith("downmod"):
                     parts = DOS.split(" ")
                     if len(parts) == 3:
                         mod_name = parts[1]
@@ -1059,9 +1310,74 @@ Minecraft Log
                         Minecraft.download_mod(mod_name, game_version)
                     else:
                         print("Usage: downmod <ModName> <GameVersion>")
-                elif DOS == 'exit':
+                elif DOS.startswith("cd"):
+                    if len(DOS.split(" ")) < 1:
+                        print(Fore.RED + "Invalid syntax. Usage: cd <directory>")
+                    elif len(DOS.split(" ")) >= 2:
+                        try:
+                            os.chdir(DOS.replace("cd",""))
+                        except Exception as e:
+                            print("ERROR:",e)
+                    else:
+                        try:
+                            os.chdir(DOS.split(" ")[1])
+                        except Exception as e:
+                            print("ERROR:",e)
+                elif DOS.startswith("mkdir") or DOS.startswith("md"):
+                    if len(DOS.split(" ")) < 1:
+                        print(Fore.RED + "Invalid syntax. Usage: mkdir <directory>")
+                    elif len(DOS.split(" ")) >= 2:
+                        try:
+                            os.makedirs(DOS.replace("mkdir",""))
+                        except Exception as e:
+                            print("ERROR:",e)
+                    else:
+                        try:
+                            os.makedirs(DOS.split(" ")[1])
+                        except Exception as e:
+                            print("ERROR:",e)
+                elif DOS.startswith("rmdir") or DOS.startswith("rd"):
+                    if len(DOS.split(" ")) < 1:
+                        print(Fore.RED + "Invalid syntax. Usage: rmdir <directory>")
+                    elif len(DOS.split(" ")) >= 2:
+                        try:
+                            os.rmdir(DOS.replace("rmdir",""))
+                        except Exception as e:
+                            print("ERROR:",e)
+                    else:
+                        try:
+                            os.rmdir(DOS.split(" ")[1])
+                        except Exception as e:
+                            print("ERROR:",e)
+                elif DOS.startswith("del"):
+                    if len(DOS.split(" ")) < 1:
+                        print(Fore.RED + "Invalid syntax. Usage: del <file>")
+                    elif len(DOS.split(" ")) >= 2:
+                        try:
+                            os.remove(DOS.replace("del",""))
+                        except Exception as e:
+                            print("ERROR:",e)
+                    else:
+                        try:
+                            os.remove(DOS.split(" ")[1])
+                        except Exception as e:
+                            print("ERROR:",e)
+                elif DOS.startswith("rm"):
+                    if len(DOS.split(" ")) < 1:
+                        print(Fore.RED + "Invalid syntax. Usage: rm <file>")
+                    elif len(DOS.split(" ")) >= 2:
+                        try:
+                            os.remove(DOS.replace("rm",""))
+                        except Exception as e:
+                            print("ERROR:",e)
+                    else:
+                        try:
+                            os.remove(DOS.split(" ")[1])
+                        except Exception as e:
+                            print("ERROR:",e)
+                elif DOS.startswith('exit'):
                     sys.exit(0)
-                elif 'fuck' in DOS.lower():
+                elif ['fuck','shit','nigger'] in DOS.lower():
                     print(Fore.RED+f"FATAL ERROR {DOS}")
                 else:
                     print(Fore.RED + f"DOSError: {DOS}")
@@ -1102,5 +1418,4 @@ Minecraft.Menu()
 print(f"Start time at {datetime.datetime.now()}")
 if not isnetconnect():
     print("not internet connect, `launch`,`help`,`clear`,`config`and`refrver` only")
-if __name__ == "__main__":
-    Minecraft.DOS()
+Minecraft.DOS()
