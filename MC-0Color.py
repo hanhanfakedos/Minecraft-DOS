@@ -37,17 +37,12 @@ try:
     import wget
     import keyboard
     import requests
-    from colorama import Fore, Style, init
-    init(autoreset=True)
     from PIL import Image
 except ModuleNotFoundError:
     pipdown("minecraft_launcher_lib")
     pipdown("wget")
     pipdown("keyboard")
     pipdown("requests")
-    os.system("pip3 install colorama") #special
-    from colorama import Fore, Style, init
-    init(autoreset=True)
     os.system("pip3 install pillow")
     from PIL import Image
 
@@ -206,16 +201,16 @@ class MinecraftSkins:
     def download_official_skin(self, username):
         """Download skin from official Minecraft servers"""
         try:
-            print(f"{Fore.CYAN}Downloading official skin for {username}...")
+            print(f"Downloading official skin for {username}...")
             response = requests.get(f"https://api.mojang.com/users/profiles/minecraft/{username}")
             if response.status_code != 200:
-                print(f"{Fore.RED}Could not find player: {username}")
+                print(f"Could not find player: {username}")
                 return None
                 
             player_uuid = response.json()['id']
             response = requests.get(f"https://sessionserver.mojang.com/session/minecraft/profile/{player_uuid}")
             if response.status_code != 200:
-                print(f"{Fore.RED}Failed to fetch skin data")
+                print(f"Failed to fetch skin data")
                 return None
                 
             profile_data = response.json()
@@ -228,14 +223,14 @@ class MinecraftSkins:
                         skin_path = os.path.join(self.skins_dir, f"{username}_official.png")
                         with open(skin_path, 'wb') as f:
                             f.write(skin_response.content)
-                        print(f"{Fore.GREEN}Skin downloaded successfully to: {skin_path}")
+                        print(f"Skin downloaded successfully to: {skin_path}")
                         return skin_path
                         
-            print(f"{Fore.RED}No skin found for this player")
+            print(f"No skin found for this player")
             return None
             
         except Exception as e:
-            print(f"{Fore.RED}Error downloading official skin: {e}")
+            print(f"Error downloading official skin: {e}")
             return None
 
     def download_third_party_skin(self, username, server_url=None):
@@ -244,10 +239,10 @@ class MinecraftSkins:
             if server_url is None:
                 server_url = "https://littleskin.cn/api/yggdrasil"
                 
-            print(f"{Fore.CYAN}Downloading skin for {username} from {server_url}...")
+            print(f"Downloading skin for {username} from {server_url}...")
             response = requests.get(f"{server_url}/sessionserver/session/minecraft/profile/{username}")
             if response.status_code != 200:
-                print(f"{Fore.RED}Could not find player on third-party server: {username}")
+                print(f"Could not find player on third-party server: {username}")
                 return None
 
             profile_data = response.json()
@@ -261,32 +256,32 @@ class MinecraftSkins:
                             skin_path = os.path.join(self.skins_dir, f"{username}_custom.png")
                             with open(skin_path, 'wb') as f:
                                 f.write(skin_response.content)
-                            print(f"{Fore.GREEN}Custom skin downloaded successfully to: {skin_path}")
+                            print(f"Custom skin downloaded successfully to: {skin_path}")
                             return skin_path
 
-            print(f"{Fore.RED}No skin found on third-party server")
+            print(f"No skin found on third-party server")
             return None
             
         except Exception as e:
-            print(f"{Fore.RED}Error downloading custom skin: {e}")
+            print(f"Error downloading custom skin: {e}")
             return None
 
     def upload_skin(self, skin_path, auth_token, slim_model=False):
         """Upload skin to authenticated account"""
         try:
-            print(f"{Fore.CYAN}Uploading skin...")
+            print(f"Uploading skin...")
             if not os.path.exists(skin_path):
-                print(f"{Fore.RED}Skin file not found")
+                print(f"Skin file not found")
                 return False
                 
             try:
                 with Image.open(skin_path) as img:
                     width, height = img.size
                     if width != 64 or (height != 64 and height != 32):
-                        print(f"{Fore.RED}Invalid skin dimensions. Must be 64x64 or 64x32")
+                        print(f"Invalid skin dimensions. Must be 64x64 or 64x32")
                         return False
             except Exception as e:
-                print(f"{Fore.RED}Invalid image file: {e}")
+                print(f"Invalid image file: {e}")
                 return False
 
             headers = {'Authorization': f'Bearer {auth_token}'}
@@ -295,14 +290,14 @@ class MinecraftSkins:
 
             response = requests.post('https://api.minecraftservices.com/minecraft/profile/skins', headers=headers, files=files, data=data)
             if response.status_code == 200:
-                print(f"{Fore.GREEN}Skin uploaded successfully!")
+                print(f"Skin uploaded successfully!")
                 return True
             else:
-                print(f"{Fore.RED}Failed to upload skin. Status code: {response.status_code}")
+                print(f"Failed to upload skin. Status code: {response.status_code}")
                 return False
                 
         except Exception as e:
-            print(f"{Fore.RED}Error uploading skin: {e}")
+            print(f"Error uploading skin: {e}")
             return False
 
     def list_local_skins(self):
@@ -310,15 +305,15 @@ class MinecraftSkins:
         try:
             skins = [f for f in os.listdir(self.skins_dir) if f.endswith('.png')]
             if skins:
-                print(f"{Fore.CYAN}Locally stored skins:")
+                print(f"Locally stored skins:")
                 for skin in skins:
                     print(f"- {skin}")
                 return skins
             else:
-                print(f"{Fore.YELLOW}No skins found in local storage")
+                print(f"No skins found in local storage")
                 return []
         except Exception as e:
-            print(f"{Fore.RED}Error listing skins: {e}")
+            print(f"Error listing skins: {e}")
             return []
 
 # Define the Multi-Threaded Downloader Class
@@ -488,7 +483,7 @@ class Minecraft:
     def skin_manager_interface(self, args=None):
         """Manage Minecraft skins"""
         while True:
-            print(f"\n{Fore.CYAN}Minecraft Skin Manager")
+            print(f"\nMinecraft Skin Manager")
             print("1. Download official skin")
             print("2. Download custom skin")
             print("3. Upload skin")
@@ -516,19 +511,19 @@ class Minecraft:
             elif choice == "4":
                 self.skin_manager.list_local_skins()
             elif choice == "5":
-                print(f"{Fore.CYAN}Exiting Skin Manager...")
+                print(f"Exiting Skin Manager...")
                 break
     def Menu():
-        print(Fore.CYAN + "===================================================================")
-        print(Fore.YELLOW + "                         Minecraft-DOS")
-        print(Fore.CYAN + "===================================================================")
-        print(Fore.GREEN + "Available Versions:")
+        print("===================================================================")
+        print("                         Minecraft-DOS")
+        print("===================================================================")
+        print( + "Available Versions:")
         versions = minecraft_launcher_lib.utils.get_installed_versions(defaultMinecraftDir)
         if versions:
             for version in versions:
-                print(Fore.WHITE + f" - {version['id']}")
+                print(f" - {version['id']}")
         else:
-            print(Fore.RED + "No versions installed.")
+            print("No versions installed.")
     def version(types):
         alllist=minecraft_launcher_lib.utils.get_version_list()
         VERSIONRel=[]
@@ -541,17 +536,17 @@ class Minecraft:
                 VERSIONSna.append(abc["id"])
             else:
                 VERSIONBeta.append(abc["id"])
-        print(Fore.CYAN + "===================================================================")
+        print("===================================================================")
         if types == "release":
             for z in VERSIONRel:
-                print(Fore.MAGENTA+f"""-{z}""")
+                print(f"""-{z}""")
         elif types == "snapshot":
             for s in VERSIONSna:
-                print(Fore.MAGENTA+f"""-{s}""")
+                print(f"""-{s}""")
         else:
             for s0 in VERSIONBeta:
-                print(Fore.MAGENTA+f"""-{s0}""")
-        print(Fore.CYAN + "===================================================================")
+                print(f"""-{s0}""")
+        print("===================================================================")
     def MSLogin():
         login_url, state, code_verifier = minecraft_launcher_lib.microsoft_account.get_secure_login_data(clientid, redirecturi)
         print(f"copy the url you are redirected into the prompt below.")
@@ -605,7 +600,7 @@ class Minecraft:
                 finish=int(progress/current_max*100)*"#"
                 notfinish=int(100-(int(progress/current_max*100)))*"-"
                 print("\r", end="")
-                print(f"[{Fore.YELLOW}|{finish}=>{notfinish}|{Fore.GREEN}Downloaded:{progress}/{current_max}|{Fore.BLUE}{int(progress/current_max*100)}%|{Fore.CYAN}Task:{statusII}]", end="")
+                print(f"[|{finish}=>{notfinish}|Downloaded:{progress}/{current_max}|{int(progress/current_max*100)}%|Task:{statusII}]", end="")
                 sys.stdout.flush()
 
         def set_max(new_max: int):
@@ -735,28 +730,28 @@ class Minecraft:
                     minecraft_launcher_lib.install.install_minecraft_version(ver, defaultMinecraftDir, callback=callback)
                     print(f"\nSuccess Install {ver}")
                 elif "--help" in args2:
-                    print(f"""{Fore.YELLOW}ARGS DOCUMATION
-{Fore.CYAN}+------------------------------------------+
-{Fore.GREEN}| --forge[--optifine]                      |
-{Fore.WHITE}| Install Forge[and optifine]              |
-{Fore.CYAN}+------------------------------------------+
-{Fore.GREEN}| --fabric[--sodium]                       |
-{Fore.WHITE}| Install Fabric+API[and sodium]           |
-{Fore.CYAN}+------------------------------------------+
-{Fore.GREEN}| --quilt                                  |
-{Fore.WHITE}| Install Quilt                            |
-{Fore.CYAN}+------------------------------------------+
-{Fore.GREEN}| --neoforge                               |
-{Fore.WHITE}| Install Neoforged                        |
-{Fore.CYAN}+------------------------------------------+
-{Fore.GREEN}| --vanilla                                |
-{Fore.WHITE}| Install Vanilla                          |
-{Fore.CYAN}+------------------------------------------+
-{Fore.GREEN}| --help                                   |
-{Fore.WHITE}| Help documents                           |
-{Fore.CYAN}+------------------------------------------+""")
+                    print(f"""ARGS DOCUMATION
++------------------------------------------+
+| --forge[--optifine]                      |
+| Install Forge[and optifine]              |
++------------------------------------------+
+| --fabric[--sodium]                       |
+| Install Fabric+API[and sodium]           |
++------------------------------------------+
+| --quilt                                  |
+| Install Quilt                            |
++------------------------------------------+
+| --neoforge                               |
+| Install Neoforged                        |
++------------------------------------------+
+| --vanilla                                |
+| Install Vanilla                          |
++------------------------------------------+
+| --help                                   |
+| Help documents                           |
++------------------------------------------+""")
                 else:
-                    print(f"{Fore.RED}Input `--help` to help")
+                    print(f"Input `--help` to help")
             else:
                 try:
                     while True:
@@ -924,52 +919,52 @@ Minecraft Log
         conf = configparser.ConfigParser()
         conf.read("config.ini")
         while True: 
-            print(Fore.CYAN + "\nCONFIG PANEL")
-            print(Fore.CYAN + "========================")
-            print(Fore.CYAN + "Current Settings:")
-            print(Fore.YELLOW + f"1. Username: {conf['user']['Username']}")
-            print(Fore.YELLOW + f"2. Memory (Xmx): {conf['JVMMemory']['Xmx']} MB")
-            print(Fore.YELLOW + f"3. Authlib URL: {YggdrasilURL}")
-            print(Fore.YELLOW + f"4. Exit")
-            print(Fore.CYAN + "========================")
-            choice = input(Fore.CYAN + "Choose an option to change (1-4): ").strip()
+            print("\nCONFIG PANEL")
+            print("========================")
+            print("Current Settings:")
+            print(f"1. Username: {conf['user']['Username']}")
+            print(f"2. Memory (Xmx): {conf['JVMMemory']['Xmx']} MB")
+            print(f"3. Authlib URL: {YggdrasilURL}")
+            print(f"4. Exit")
+            print("========================")
+            choice = input("Choose an option to change (1-4): ").strip()
             if choice == "1":
-                new_username = input(Fore.CYAN + "Enter new username (or 'exit0' to cancel): ").strip()
+                new_username = input("Enter new username (or 'exit0' to cancel): ").strip()
                 if new_username != "exit0":
                     conf["user"]["Username"] = new_username
-                    print(Fore.GREEN + f"Username changed to {new_username}")
+                    print( + f"Username changed to {new_username}")
             elif choice == "2":
                 try:
-                    new_memory = int(input(Fore.CYAN + "Enter new memory (MB) (or '0' to cancel): ").strip())
+                    new_memory = int(input("Enter new memory (MB) (or '0' to cancel): ").strip())
                     if new_memory > 0:
                         conf["JVMMemory"]["Xmx"] = str(new_memory)
-                        print(Fore.GREEN + f"Memory (Xmx) changed to {new_memory} MB")
+                        print( + f"Memory (Xmx) changed to {new_memory} MB")
                     elif new_memory == 0:
-                        print(Fore.YELLOW + "Memory change canceled")
+                        print("Memory change canceled")
                     else:
-                        print(Fore.RED + "Invalid memory value")
+                        print("Invalid memory value")
                 except ValueError:
-                    print(Fore.RED + "Invalid input. Please enter a valid number.")
+                    print("Invalid input. Please enter a valid number.")
             elif choice == "3":
-                new_url = input(Fore.CYAN + "Enter new Authlib URL (or 'exit0' to cancel): ").strip()
+                new_url = input("Enter new Authlib URL (or 'exit0' to cancel): ").strip()
                 if new_url != "exit0":
                     try:
                         urllib.request.urlopen(new_url)
                         YggdrasilURL = new_url
-                        print(Fore.GREEN + f"Authlib URL changed to {new_url}")
+                        print( + f"Authlib URL changed to {new_url}")
                     except ValueError:
-                        print(Fore.RED + "Invalid URL")
+                        print("Invalid URL")
                     except Exception as e:
-                        print(Fore.RED + f"Error: {e}")
+                        print(f"Error: {e}")
             elif choice == "4":
-                print(Fore.CYAN + "Exiting configuration panel...")
+                print("Exiting configuration panel...")
                 break
             else:
-                print(Fore.RED + "Invalid choice. Please select a valid option.")
+                print("Invalid choice. Please select a valid option.")
             # Save changes to config.ini
             with open("config.ini", "w") as configfile:
                 conf.write(configfile)
-            print(Fore.GREEN + "Changes saved.")
+            print( + "Changes saved.")
     def fetch_mods_from_modrinth():
         url = "https://api.modrinth.com/v2/search"
         headers = {
@@ -1090,76 +1085,76 @@ Github Copilot
         Xmx1=conf["JVMMemory"]["Xmx"]
         api_key = "$2a$10$6.P/W1SuOQxOsPnsqHYHc.01wQN.duMd2nxrYwOJJCP4nKhLXEdza"
         helpf=f"""
-{Fore.YELLOW}Minecraft-DOS Help documents
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}listver{Fore.WHITE} (None)
-{Fore.WHITE}List all version
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}download{Fore.WHITE} (Vers)
-{Fore.WHITE}Download a version
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}launch{Fore.WHITE} (Vers)
-{Fore.WHITE}Launch a version
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}config{Fore.WHITE} (None)
-{Fore.WHITE}Configure your profile
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}clear{Fore.WHITE} (None)
-{Fore.WHITE}Clear Console
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}refrver{Fore.WHITE} or {Fore.GREEN}F5{Fore.WHITE} (None)
-{Fore.WHITE}Refresh installed versions
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}mslogin{Fore.WHITE} (None)
-{Fore.WHITE}Microsoft Login
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}authlib{Fore.WHITE} (None)
-{Fore.WHITE}Authlib-Injector Yggdrasil Sign
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}alaunch{Fore.WHITE} (Vers)
-{Fore.WHITE}Authlib-Injector Launch
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}mslaunch{Fore.WHITE} (Vers)
-{Fore.WHITE}Microsoft Account Launch
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}modsmenu {Fore.WHITE}(None)(Beta)
-{Fore.WHITE}Display available mods from CurseForge API
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}checkdisk {Fore.WHITE}(None)
-{Fore.WHITE}Check available disk space
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}sysinfo {Fore.WHITE}(None)
-{Fore.WHITE}Show system information
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}uninstall {Fore.WHITE}(Vers)
-{Fore.WHITE}Uninstall a Minecraft version
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}modmenu {Fore.WHITE}(Beta)
-{Fore.WHITE}Fetch mods from CurseForge
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}searchmod {Fore.WHITE}(None)
-{Fore.WHITE}Search mods from CurseForge API
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}downmod {Fore.WHITE}(ModName GameVersion)(Beta)
-{Fore.WHITE}Download a mod from CurseForge
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}modrinth{Fore.WHITE} (None)
-{Fore.WHITE}Display available mods from Modrinth API
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}downmodrinth{Fore.WHITE} (ModID GameVersion)
-{Fore.WHITE}Download a mod from Modrinth
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}skinmanager{Fore.WHITE} (None)
-{Fore.WHITE}Manage Minecraft skins
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}searchmodrinth{Fore.WHITE} (None)
-{Fore.WHITE}Search mods from Modrinth API
-{Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}exit{Fore.WHITE} (None)
-{Fore.WHITE}Exit Minecraft-DOS
-{Fore.CYAN}----------------------------------------------------
+Minecraft-DOS Help documents
+----------------------------------------------------
+listver (None)
+List all version
+----------------------------------------------------
+download (Vers)
+Download a version
+----------------------------------------------------
+launch (Vers)
+Launch a version
+----------------------------------------------------
+config (None)
+Configure your profile
+----------------------------------------------------
+clear (None)
+Clear Console
+----------------------------------------------------
+refrver or F5 (None)
+Refresh installed versions
+----------------------------------------------------
+mslogin (None)
+Microsoft Login
+----------------------------------------------------
+authlib (None)
+Authlib-Injector Yggdrasil Sign
+----------------------------------------------------
+alaunch (Vers)
+Authlib-Injector Launch
+----------------------------------------------------
+mslaunch (Vers)
+Microsoft Account Launch
+----------------------------------------------------
+modsmenu (None)(Beta)
+Display available mods from CurseForge API
+----------------------------------------------------
+checkdisk (None)
+Check available disk space
+----------------------------------------------------
+sysinfo (None)
+Show system information
+----------------------------------------------------
+uninstall (Vers)
+Uninstall a Minecraft version
+----------------------------------------------------
+modmenu (Beta)
+Fetch mods from CurseForge
+----------------------------------------------------
+searchmod (None)
+Search mods from CurseForge API
+----------------------------------------------------
+downmod (ModName GameVersion)(Beta)
+Download a mod from CurseForge
+----------------------------------------------------
+modrinth (None)
+Display available mods from Modrinth API
+----------------------------------------------------
+downmodrinth (ModID GameVersion)
+Download a mod from Modrinth
+----------------------------------------------------
+skinmanager (None)
+Manage Minecraft skins
+----------------------------------------------------
+searchmodrinth (None)
+Search mods from Modrinth API
+----------------------------------------------------
+exit (None)
+Exit Minecraft-DOS
+----------------------------------------------------
 """        
-        print(Fore.CYAN + "Enter `help` for help")
+        print("Enter `help` for help")
         while True:
             try:
                 DOS = input(f"{cwd}:>>> ")
@@ -1218,7 +1213,7 @@ Github Copilot
                 elif DOS.startswith('modmenu'):
                     Minecraft.fecth_mods_from_curseforge(api_key)
                 elif DOS.startswith("listver"):
-                    print(Fore.CYAN + "List versions\nTypes:\n(1)Release\n(2)Snapshot\n(3)Old Alpha\n(4)Exit\n(Can Multi choose)")
+                    print("List versions\nTypes:\n(1)Release\n(2)Snapshot\n(3)Old Alpha\n(4)Exit\n(Can Multi choose)")
                     while True:
                         listVer=input("Choice a types of versions>>>")
                         if "1" in listVer:
@@ -1261,7 +1256,7 @@ Github Copilot
                             email=input("Email:")
                             passwd=args[args.index('-p')+1]
                         elif '-h' in args or '-?' in args:
-                            print(f"{Fore.CYAN}ARGS Help doc\n+------------------------------------------------------+\n| '-e <somename@example.com>'            Your Email    |\n| '-p <password>'                        Your Password |\n| '-h' or '-?'                           Help Docs     |\n+------------------------------------------------------+")
+                            print(f"ARGS Help doc\n+------------------------------------------------------+\n| '-e <somename@example.com>'            Your Email    |\n| '-p <password>'                        Your Password |\n| '-h' or '-?'                           Help Docs     |\n+------------------------------------------------------+")
                     else:
                         email = input("Email:")
                         passwd = input("Password:")
@@ -1319,7 +1314,7 @@ Github Copilot
                         print("Usage: downmod <ModName> <GameVersion>")
                 elif DOS.startswith("cd"):
                     if len(DOS.split(" ")) < 1:
-                        print(Fore.RED + "Invalid syntax. Usage: cd <directory>")
+                        print("Invalid syntax. Usage: cd <directory>")
                     elif len(DOS.split(" ")) >= 2:
                         try:
                             os.chdir(DOS.replace("cd ",""))
@@ -1332,7 +1327,7 @@ Github Copilot
                             print("ERROR:",e)
                 elif DOS.startswith("mkdir"):
                     if len(DOS.split(" ")) < 1:
-                        print(Fore.RED + "Invalid syntax. Usage: mkdir <directory>")
+                        print("Invalid syntax. Usage: mkdir <directory>")
                     elif len(DOS.split(" ")) >= 2:
                         try:
                             os.makedirs(DOS.replace("mkdir ",""))
@@ -1345,7 +1340,7 @@ Github Copilot
                             print("ERROR:",e)
                 elif DOS.startswith("rmdir"):
                     if len(DOS.split(" ")) < 1:
-                        print(Fore.RED + "Invalid syntax. Usage: rmdir <directory>")
+                        print("Invalid syntax. Usage: rmdir <directory>")
                     elif len(DOS.split(" ")) >= 2:
                         try:
                             os.rmdir(DOS.replace("rmdir ",""))
@@ -1358,7 +1353,7 @@ Github Copilot
                             print("ERROR:",e)
                 elif DOS.startswith("del"):
                     if len(DOS.split(" ")) < 1:
-                        print(Fore.RED + "Invalid syntax. Usage: del <file>")
+                        print("Invalid syntax. Usage: del <file>")
                     elif len(DOS.split(" ")) >= 2:
                         try:
                             os.remove(DOS.replace("del ",""))
@@ -1371,7 +1366,7 @@ Github Copilot
                             print("ERROR:",e)
                 elif DOS.startswith("rm"):
                     if len(DOS.split(" ")) < 1:
-                        print(Fore.RED + "Invalid syntax. Usage: rm <file>")
+                        print("Invalid syntax. Usage: rm <file>")
                     elif len(DOS.split(" ")) >= 2:
                         try:
                             os.remove(DOS.replace("rm ",""))
@@ -1385,41 +1380,41 @@ Github Copilot
                 elif DOS.startswith('exit'):
                     sys.exit(0)
                 elif ['fuck','shit','nigger'] in DOS.lower():
-                    print(Fore.RED+f"FATAL ERROR {DOS}")
+                    print(f"FATAL ERROR {DOS}")
                 else:
-                    print(Fore.RED + f"DOSError: {DOS}")
-                    print(Fore.CYAN + "Enter `help` for help")
+                    print(f"DOSError: {DOS}")
+                    print("Enter `help` for help")
             except Exception as e:
-                print(Fore.RED + f"Found an Exception: {e}")
+                print(f"Found an Exception: {e}")
             except KeyboardInterrupt:
                 Minecraft.DOS()
 
 Minecraft.Config_ini()
 
 def boot_sequence():
-        Minecraft.OOO(Fore.CYAN + "Starting Minecraft-DOS...",1,0.05)
+        Minecraft.OOO("Starting Minecraft-DOS...",1,0.05)
         print("\n",end="")
-        Minecraft.OOO(Fore.CYAN + "Initializing system components...",1,0.05)
+        Minecraft.OOO("Initializing system components...",1,0.05)
         print("\n",end="")
-        Minecraft.OOO(Fore.CYAN + "Loading configurations...",1,0.05)
+        Minecraft.OOO("Loading configurations...",1,0.05)
         print("\n",end="")
-        Minecraft.OOO(Fore.CYAN + "Checking network connectivity...",1,0.05)
+        Minecraft.OOO("Checking network connectivity...",1,0.05)
         print("\n",end="")
         if isnetconnect():
-            print(Fore.GREEN + "Network connected")
+            print( + "Network connected")
             print("\n",end="")
         else:
-            print(Fore.RED + "No network connection")
+            print("No network connection")
             print("\n",end="")
-        Minecraft.OOO(Fore.CYAN + "Setting up environment...",1,0.05)
+        Minecraft.OOO("Setting up environment...",1,0.05)
         print("\n",end="")
-        Minecraft.OOO(Fore.CYAN + "Launching Minecraft-DOS",1,0.05)
+        Minecraft.OOO("Launching Minecraft-DOS",1,0.05)
         print("\n",end="")
-        print(Fore.GREEN + "Minecraft-DOS is ready to use!")
+        print( + "Minecraft-DOS is ready to use!")
         print("\n",end="")
 Minecraft.launcher_profile()
 boot_sequence()
-Minecraft.OOO(Fore.GREEN + "HIMEM is testing memory...",10,0.05)
+Minecraft.OOO( + "HIMEM is testing memory...",10,0.05)
 print("\n",end="")
 Minecraft.Menu()
 print(f"Start time at {datetime.datetime.now()}")
