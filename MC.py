@@ -160,7 +160,7 @@ class neoforged:
             Callback.get("setMax")(len(versionjson['libraries']))
             count=0
             for i in versionjson['libraries']:
-                wget.download(i["downloads"]["artifact"]['url'],f"{defaultMinecraftDir}/libraries/{i["downloads"]["artifact"]['path']}")
+                wget.download(i["downloads"]["artifact"]['url'],f"""{defaultMinecraftDir}/libraries/{i["downloads"]["artifact"]['path']}""")
                 count+=1
                 Callback.get("setProgress")(count)
             shutil.copy(f"{defaultMinecraftDir}/versions/{mcver}/{mcver}.json",f"{defaultMinecraftDir}/versions/neoforge-{ver}/{mcver}.json")
