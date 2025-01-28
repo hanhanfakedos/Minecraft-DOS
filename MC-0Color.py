@@ -43,6 +43,7 @@ except ModuleNotFoundError:
     pipdown("wget")
     pipdown("keyboard")
     pipdown("requests")
+    os.system("pip3 install colorama") #special
     os.system("pip3 install pillow")
     from PIL import Image
 
@@ -517,7 +518,7 @@ class Minecraft:
         print("===================================================================")
         print("                         Minecraft-DOS")
         print("===================================================================")
-        print( + "Available Versions:")
+        print("Available Versions:")
         versions = minecraft_launcher_lib.utils.get_installed_versions(defaultMinecraftDir)
         if versions:
             for version in versions:
@@ -918,6 +919,8 @@ Minecraft Log
     def ConfPanel():
         conf = configparser.ConfigParser()
         conf.read("config.ini")
+        global YggdrasilURL
+        global defaultMinecraftDir
         while True: 
             print("\nCONFIG PANEL")
             print("========================")
@@ -925,20 +928,21 @@ Minecraft Log
             print(f"1. Username: {conf['user']['Username']}")
             print(f"2. Memory (Xmx): {conf['JVMMemory']['Xmx']} MB")
             print(f"3. Authlib URL: {YggdrasilURL}")
-            print(f"4. Exit")
+            print(f"4. Minecraft-Path: {defaultMinecraftDir}")
+            print(f"5. Exit")
             print("========================")
-            choice = input("Choose an option to change (1-4): ").strip()
+            choice = input("Choose an option to change (1-5): ").strip()
             if choice == "1":
                 new_username = input("Enter new username (or 'exit0' to cancel): ").strip()
                 if new_username != "exit0":
                     conf["user"]["Username"] = new_username
-                    print( + f"Username changed to {new_username}")
+                    print(f"Username changed to {new_username}")
             elif choice == "2":
                 try:
                     new_memory = int(input("Enter new memory (MB) (or '0' to cancel): ").strip())
                     if new_memory > 0:
                         conf["JVMMemory"]["Xmx"] = str(new_memory)
-                        print( + f"Memory (Xmx) changed to {new_memory} MB")
+                        print(f"Memory (Xmx) changed to {new_memory} MB")
                     elif new_memory == 0:
                         print("Memory change canceled")
                     else:
@@ -951,12 +955,19 @@ Minecraft Log
                     try:
                         urllib.request.urlopen(new_url)
                         YggdrasilURL = new_url
-                        print( + f"Authlib URL changed to {new_url}")
+                        print(f"Authlib URL changed to {new_url}")
                     except ValueError:
                         print("Invalid URL")
                     except Exception as e:
                         print(f"Error: {e}")
             elif choice == "4":
+                newdir = input("Enter new Path (or 'exit0' to cancel,REQUIED EXISTS AND FULL!!!): ").strip()
+                if new_url != "/exit0":
+                    if os.path.isdir(newdir):
+                        defaultMinecraftDir=newdir
+                    else:
+                        print("PATH ERROR OR NOT EXISTS")
+            elif choice == "5":
                 print("Exiting configuration panel...")
                 break
             else:
@@ -964,7 +975,7 @@ Minecraft Log
             # Save changes to config.ini
             with open("config.ini", "w") as configfile:
                 conf.write(configfile)
-            print( + "Changes saved.")
+            print("Changes saved.")
     def fetch_mods_from_modrinth():
         url = "https://api.modrinth.com/v2/search"
         headers = {
@@ -1401,7 +1412,7 @@ def boot_sequence():
         Minecraft.OOO("Checking network connectivity...",1,0.05)
         print("\n",end="")
         if isnetconnect():
-            print( + "Network connected")
+            print("Network connected")
             print("\n",end="")
         else:
             print("No network connection")
@@ -1410,11 +1421,11 @@ def boot_sequence():
         print("\n",end="")
         Minecraft.OOO("Launching Minecraft-DOS",1,0.05)
         print("\n",end="")
-        print( + "Minecraft-DOS is ready to use!")
+        print("Minecraft-DOS is ready to use!")
         print("\n",end="")
 Minecraft.launcher_profile()
 boot_sequence()
-Minecraft.OOO( + "HIMEM is testing memory...",10,0.05)
+Minecraft.OOO("HIMEM is testing memory...",10,0.05)
 print("\n",end="")
 Minecraft.Menu()
 print(f"Start time at {datetime.datetime.now()}")

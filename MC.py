@@ -923,6 +923,8 @@ Minecraft Log
     def ConfPanel():
         conf = configparser.ConfigParser()
         conf.read("config.ini")
+        global YggdrasilURL
+        global defaultMinecraftDir
         while True: 
             print(Fore.CYAN + "\nCONFIG PANEL")
             print(Fore.CYAN + "========================")
@@ -930,9 +932,10 @@ Minecraft Log
             print(Fore.YELLOW + f"1. Username: {conf['user']['Username']}")
             print(Fore.YELLOW + f"2. Memory (Xmx): {conf['JVMMemory']['Xmx']} MB")
             print(Fore.YELLOW + f"3. Authlib URL: {YggdrasilURL}")
-            print(Fore.YELLOW + f"4. Exit")
+            print(Fore.YELLOW + f"4. Minecraft-Path: {defaultMinecraftDir}")
+            print(Fore.YELLOW + f"5. Exit")
             print(Fore.CYAN + "========================")
-            choice = input(Fore.CYAN + "Choose an option to change (1-4): ").strip()
+            choice = input(Fore.CYAN + "Choose an option to change (1-5): ").strip()
             if choice == "1":
                 new_username = input(Fore.CYAN + "Enter new username (or 'exit0' to cancel): ").strip()
                 if new_username != "exit0":
@@ -962,6 +965,13 @@ Minecraft Log
                     except Exception as e:
                         print(Fore.RED + f"Error: {e}")
             elif choice == "4":
+                newdir = input(Fore.CYAN + "Enter new Path (or 'exit0' to cancel,REQUIED EXISTS AND FULL!!!): ").strip()
+                if new_url != "/exit0":
+                    if os.path.isdir(newdir):
+                        defaultMinecraftDir=newdir
+                    else:
+                        print(Fore.RED + "PATH ERROR OR NOT EXISTS")
+            elif choice == "5":
                 print(Fore.CYAN + "Exiting configuration panel...")
                 break
             else:
