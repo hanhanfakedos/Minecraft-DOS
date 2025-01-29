@@ -200,8 +200,8 @@ class MinecraftSkins:
 
     def load_config(self):
         """Load configuration file"""
-        if os.path.exists("config.ini"):
-            self.config.read("config.ini")
+        if os.path.exists(os.path.join(defaultMinecraftDir,"config.ini")):
+            self.config.read(os.path.join(defaultMinecraftDir,"config.ini"))
 
     def download_official_skin(self, username):
         """Download skin from official Minecraft servers"""
@@ -396,12 +396,12 @@ class Minecraft:
             "UUID":f"{UserUUID}",
             "Token":f"{UserUUID}",
             }
-        if os.path.exists("config.ini") != True:
-            with open("config.ini","w") as confFile:
+        if os.path.exists(os.path.join(defaultMinecraftDir,"config.ini")) != True:
+            with open(os.path.join(defaultMinecraftDir,"config.ini"),"w") as confFile:
                 conf.write(confFile)
-            conf.read("config.ini")
+            conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
         else:
-            conf.read("config.ini")
+            conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
     def launcher_profile():
 
         profile = {
@@ -818,7 +818,7 @@ class Minecraft:
             print(f"Version {version} not found.")
     def download_mod(mod_name, game_version):
         conf = configparser.ConfigParser()
-        conf.read("config.ini")
+        conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
         api_key = conf.get("api", "CurseForgeAPIKey", fallback=None)
         if not api_key:
             print("CurseForge API key not found in config.ini.")
@@ -922,7 +922,7 @@ Minecraft Log
                 print("ERROR!",e)
     def ConfPanel():
         conf = configparser.ConfigParser()
-        conf.read("config.ini")
+        conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
         global YggdrasilURL
         global defaultMinecraftDir
         while True: 
@@ -977,7 +977,7 @@ Minecraft Log
             else:
                 print(Fore.RED + "Invalid choice. Please select a valid option.")
             # Save changes to config.ini
-            with open("config.ini", "w") as configfile:
+            with open(os.path.join(defaultMinecraftDir,"config.ini"), "w") as configfile:
                 conf.write(configfile)
             print(Fore.GREEN + "Changes saved.")
     def fetch_mods_from_modrinth():
@@ -1040,11 +1040,11 @@ Minecraft Log
         requestJson=requests.post(URL+"/authserver/authenticate",json=AuthlibJson).json()
         if not 'error' in requestJson:
             conf = configparser.ConfigParser()
-            conf.read("config.ini")
+            conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
             conf["userAuthlib"]["Username"] = requestJson["selectedProfile"]["name"]
             conf["userAuthlib"]["UUID"]=requestJson["selectedProfile"]["id"]
             conf["userAuthlib"]["Token"]=requestJson["accessToken"]
-            with open("config.ini", "w") as configfile:
+            with open(os.path.join(defaultMinecraftDir,"config.ini"), "w") as configfile:
                 conf.write(configfile)
         else:
             print("ERROR:",requestJson["errorMessage"])
@@ -1093,7 +1093,7 @@ Github Copilot
             return x+"\n\n"+x2
     def DOS():
         conf = configparser.ConfigParser()
-        conf.read("config.ini")
+        conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
         username1=conf["user"]["Username"]
         uuid1=conf["user"]["UUID"]
         token1=conf["user"]["Token"]
@@ -1247,16 +1247,16 @@ Github Copilot
                 elif DOS.startswith("mslogin"):
                     Minecraft.MSLogin()
                     conf = configparser.ConfigParser()
-                    conf.read("config.ini")
+                    conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
                     conf["userMS"]["Username"] = MSloginData["name"]
                     conf["userMS"]["UUID"]=MSloginData["id"]
                     conf["userMS"]["Token"]=MSloginData["access_token"]
-                    with open("config.ini", "w") as configfile:
+                    with open(os.path.join(defaultMinecraftDir,"config.ini"), "w") as configfile:
                         conf.write(configfile)
                 elif DOS.startswith('mslaunch'):
                     Vers21=DOS.split(" ")[1]
                     conf = configparser.ConfigParser()
-                    conf.read("config.ini")
+                    conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
                     Minecraft.RunMinecraft.Run(Vers21,conf["userMS"]["Username"],conf["userMS"]["UUID"],conf["userMS"]["Token"],Xmx1,authlib=True)
                 elif DOS.startswith("authlib"):
                     if len(DOS.split(" ")) > 1:
@@ -1279,7 +1279,7 @@ Github Copilot
                 elif DOS.startswith('alaunch'):
                     Vers21=DOS.split(" ")[1]
                     conf = configparser.ConfigParser()
-                    conf.read("config.ini")
+                    conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
                     Minecraft.RunMinecraft.Run(Vers21,conf["userAuthlib"]["Username"],conf["userAuthlib"]["UUID"],conf["userAuthlib"]["Token"],Xmx1,authlib=True)
                 elif DOS.startswith('skinmanager'):
                     Minecraft.skin_manager_interface()
