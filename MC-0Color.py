@@ -920,7 +920,6 @@ Minecraft Log
         conf = configparser.ConfigParser()
         conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
         global YggdrasilURL
-        global defaultMinecraftDir
         while True: 
             print("\nCONFIG PANEL")
             print("========================")
