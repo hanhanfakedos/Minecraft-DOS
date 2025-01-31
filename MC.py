@@ -922,6 +922,7 @@ Minecraft Log
                 print("ERROR!",e)
     def ConfPanel():
         conf = configparser.ConfigParser()
+        global defaultMinecraftDir
         conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
         global YggdrasilURL
         while True: 
