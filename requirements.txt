@@ -3,4 +3,4 @@ wget
 keyboard
 requests
 colorama
-PIL
+pillow

@@ -1304,7 +1304,7 @@ Github Copilot
                     elif len(parts) == 2:
                         query = parts[1]
                     else:
-                        print("Invalid syntax. Usage: searchmodrinth [query] or searchmodrinth")
+                        print("格式错误，使用： searchmodrinth [query] or searchmodrinth")
                         continue
                     mods = Minecraft.search_mods_from_modrinth(query)
                     if mods:
@@ -1348,10 +1348,10 @@ Github Copilot
         sh            BASHES
         help          DOCS""")
                     else:
-                        print(Fore.RED+"Invalid,Enter `command help` to help")
+                        print(Fore.RED+"Invalid,Enter `command help`以求助")
                 elif parts[0] == "cd":
                     if len(parts) < 1:
-                        print(Fore.RED + "Invalid syntax. Usage: cd <directory>")
+                        print(Fore.RED + "格式错误，使用： cd <directory>")
                     elif len(parts) >= 2:
                         try:
                             os.chdir(DOS.replace("cd ",""))
@@ -1364,7 +1364,7 @@ Github Copilot
                             print("ERROR:",e)
                 elif parts[0] == "mkdir":
                     if len(parts) < 1:
-                        print(Fore.RED + "Invalid syntax. Usage: mkdir <directory>")
+                        print(Fore.RED + "格式错误，使用： mkdir <directory>")
                     elif len(parts) >= 2:
                         try:
                             os.makedirs(DOS.replace("mkdir ",""))
@@ -1377,7 +1377,7 @@ Github Copilot
                             print("ERROR:",e)
                 elif parts[0] == "rmdir":
                     if len(parts) < 1:
-                        print(Fore.RED + "Invalid syntax. Usage: rmdir <directory>")
+                        print(Fore.RED + "格式错误，使用： rmdir <directory>")
                     elif len(parts) >= 2:
                         try:
                             os.rmdir(DOS.replace("rmdir ",""))
@@ -1390,7 +1390,7 @@ Github Copilot
                             print("ERROR:",e)
                 elif parts[0] == "del":
                     if len(parts) < 1:
-                        print(Fore.RED + "Invalid syntax. Usage: del <file>")
+                        print(Fore.RED + "格式错误，使用： del <file>")
                     elif len(parts) >= 2:
                         try:
                             os.remove(DOS.replace("del ",""))
@@ -1407,7 +1407,7 @@ Github Copilot
                     os.system(DOS)
                 elif parts[0] == "rm":
                     if len(parts) < 1:
-                        print(Fore.RED + "Invalid syntax. Usage: rm <file>")
+                        print(Fore.RED + "格式错误，使用: rm <file>")
                     elif len(parts) >= 2:
                         try:
                             os.remove(DOS.replace("rm ",""))
@@ -1421,17 +1421,17 @@ Github Copilot
                 elif parts[0] == 'exit':
                     sys.exit(0)
                 elif ['fuck','shit','nigger'] in DOS.lower():
-                    print(Fore.RED+f"FATAL ERROR {DOS}")
+                    print(Fore.RED+f"不能骂人")
                 else:
-                    print(Fore.RED + f"DOSError: {DOS}")
-                    print(Fore.CYAN + "Enter `help` for help")
+                    print(Fore.RED + f"错了: {DOS}")
+                    print(Fore.CYAN + "输入 `help` 来求助")
             except Exception as e:
-                print(Fore.RED + f"Found an Exception: {e}")
+                print(Fore.RED + f"找到错误: {e}")
             except KeyboardInterrupt:
                 Minecraft.DOS()
 Minecraft.Config_ini()
 Minecraft.Menu()
-print(f"Start time at {datetime.datetime.now()}")
+print(f"在 {datetime.datetime.now()} 启动")
 if not isnetconnect():
-    print("not internet connect, `launch`,`help`,`clear`,`config`and`refrver` only")
+    print("没网, 只有`launch`,`help`,`clear`,`config`,`refrver`")
 Minecraft.DOS()

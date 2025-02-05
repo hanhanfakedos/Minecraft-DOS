@@ -43,7 +43,6 @@ except ModuleNotFoundError:
     pipdown("wget")
     pipdown("keyboard")
     pipdown("requests")
-    os.system("pip3 install colorama") #special
     os.system("pip3 install pillow")
     from PIL import Image
 
@@ -1169,17 +1168,17 @@ Exit Minecraft-DOS
         while True:
             try:
                 DOS = input(f"{cwd}:>>> ")
-                if DOS.startswith('download'):
-                    if len(DOS.split(" ")) > 2:
-                        Vers = DOS.split(" ")[1]
+                parts = DOS.split(" ")
+                if parts[0] == 'download':
+                    if len(parts) > 2:
+                        Vers = parts[1]
                         Minecraft.installMinecraft.Download(Vers,DOS.replace(f"download {Vers} ",""))
-                    elif len(DOS.split(" ")) == 2:
-                        Vers = DOS.split(" ")[1]
+                    elif len(parts) == 2:
+                        Vers = parts[1]
                         Minecraft.installMinecraft.Download(Vers)
                     else:
                         print("Incorrect")
-                elif DOS.startswith('launch'):
-                    parts = DOS.split(" ")
+                elif parts[0] == 'launch':
                     version = parts[1]
                     if len(parts) > 2:
                         args=parts[2:]
@@ -1197,33 +1196,33 @@ Exit Minecraft-DOS
                         else:
                             username=username1
                             Minecraft.RunMinecraft.Run(version,username,uuid1,token1,Xmx1)
-                elif DOS.startswith("config"):
+                elif parts[0] == "config":
                     Minecraft.ConfPanel()
-                elif DOS.startswith("modsmenu"):
+                elif parts[0] == "modsmenu":
                     mods = Minecraft.fetch_mods_from_curseforge(api_key)
                     if mods:
                         print("Available Mods from CurseForge:")
                         for mod in mods:
                             print(f"- {mod['name']} ({mod['slug']})")
-                elif DOS.startswith("searchmod"):
+                elif parts[0] == "searchmod":
                     query = input("Enter search query: ")
                     mods = Minecraft.search_mods_from_curseforge(query, api_key)
                     if mods:
                         print("Search results:")
                         for mod in mods:
                             print(f"- {mod['name']} ({mod['slug']})")
-                elif DOS.startswith("checkdisk"):
+                elif parts[0] == "checkdisk":
                     check_disk_space()
-                elif DOS.startswith("sysinfo"):
+                elif parts[0] == "sysinfo":
                     show_system_info()
-                elif DOS.startswith("pythonsfather"):
+                elif parts[0] == "pythonsfather":
                     print("Guido van Rossum")
-                elif DOS.startswith("uninstall"):
-                    ver=DOS.split(" ")[1]
+                elif parts[0] == "uninstall":
+                    ver=parts[1]
                     Minecraft.uninstall_minecraft_version(ver)
-                elif DOS.startswith('modmenu'):
+                elif parts[0] == 'modmenu':
                     Minecraft.fecth_mods_from_curseforge(api_key)
-                elif DOS.startswith("listver"):
+                elif parts[0] == "listver":
                     print("List versions\nTypes:\n(1)Release\n(2)Snapshot\n(3)Old Alpha\n(4)Exit\n(Can Multi choose)")
                     while True:
                         listVer=input("Choice a types of versions>>>")
@@ -1240,7 +1239,7 @@ Exit Minecraft-DOS
                             break
                         else:
                             print("invalid")
-                elif DOS.startswith("mslogin"):
+                elif parts[0] == "mslogin":
                     Minecraft.MSLogin()
                     conf = configparser.ConfigParser()
                     conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
@@ -1249,14 +1248,14 @@ Exit Minecraft-DOS
                     conf["userMS"]["Token"]=MSloginData["access_token"]
                     with open(os.path.join(defaultMinecraftDir,"config.ini"), "w") as configfile:
                         conf.write(configfile)
-                elif DOS.startswith('mslaunch'):
-                    Vers21=DOS.split(" ")[1]
+                elif parts[0] == 'mslaunch':
+                    Vers21=parts[1]
                     conf = configparser.ConfigParser()
                     conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
                     Minecraft.RunMinecraft.Run(Vers21,conf["userMS"]["Username"],conf["userMS"]["UUID"],conf["userMS"]["Token"],Xmx1,authlib=True)
-                elif DOS.startswith("authlib"):
-                    if len(DOS.split(" ")) > 1:
-                        args=DOS.split(" ")[1:]
+                elif parts[0] == "authlib":
+                    if len(parts) > 1:
+                        args=parts[1:]
                         if '-e' in args and '-p' in args:
                             email=args[args.index('-e')+1]
                             passwd=args[args.index('-p')+1]
@@ -1272,34 +1271,33 @@ Exit Minecraft-DOS
                         email = input("Email:")
                         passwd = input("Password:")
                     Minecraft.AuthlibSign(YggdrasilURL, email, passwd)
-                elif DOS.startswith('alaunch'):
-                    Vers21=DOS.split(" ")[1]
+                elif parts[0] == 'alaunch':
+                    Vers21=parts[1]
                     conf = configparser.ConfigParser()
                     conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
                     Minecraft.RunMinecraft.Run(Vers21,conf["userAuthlib"]["Username"],conf["userAuthlib"]["UUID"],conf["userAuthlib"]["Token"],Xmx1,authlib=True)
-                elif DOS.startswith('skinmanager'):
+                elif parts[0] == 'skinmanager':
                     Minecraft.skin_manager_interface()
-                elif DOS.startswith("help"):
+                elif parts[0] == "help":
                     print(helpf)
-                elif DOS.startswith("downmodrinth"):
-                    parts = DOS.split(" ")
+                elif parts[0] == "downmodrinth":
                     if len(parts) == 3:
                         mod_id = parts[1]
                         game_version = parts[2]
                         Minecraft.download_mod_from_modrinth(mod_id, game_version)
                     else:
                         print("Usage: downmodrinth <ModID> <GameVersion>")
-                elif DOS.startswith("modrinth"):
+                elif parts[0] == "modrinth":
                     mods = Minecraft.fetch_mods_from_modrinth()
                     if mods:
                         print("Available Mods from Modrinth:")
                         for mod in mods:
                             print(f"- {mod['title']} ({mod['slug']})")
-                elif DOS.startswith("searchmodrinth"):
-                    if len(DOS.split(" ")) == 1:
+                elif parts[0] == "searchmodrinth":
+                    if len(parts) == 1:
                         query = input("Enter search query: ")
-                    elif len(DOS.split(" ")) == 2:
-                        query = DOS.split(" ")[1]
+                    elif len(parts) == 2:
+                        query = parts[1]
                     else:
                         print("Invalid syntax. Usage: searchmodrinth [query] or searchmodrinth")
                         continue
@@ -1308,87 +1306,114 @@ Exit Minecraft-DOS
                         print("Search results:")
                         for mod in mods:
                             print(f"- {mod['title']} ({mod['slug']})")
-                elif DOS.startswith("clear"):
+                elif parts[0] == "clear":
                     print("\033c",end="")
-                elif DOS.startswith("refrver") or keyboard.is_pressed("f5"):
+                elif parts[0] == "refrver" or keyboard.is_pressed("f5"):
                     minecraft_launcher_lib.utils.get_installed_versions(defaultMinecraftDir)
                     time.sleep(0.5)
                 elif DOS == "":
                     pass
-                elif DOS.startswith("downmod"):
-                    parts = DOS.split(" ")
+                elif parts[0] == "downmod":
                     if len(parts) == 3:
                         mod_name = parts[1]
                         game_version = parts[2]
                         Minecraft.download_mod(mod_name, game_version)
                     else:
                         print("Usage: downmod <ModName> <GameVersion>")
-                elif DOS.startswith("cd"):
-                    if len(DOS.split(" ")) < 1:
+                elif parts[0] == "command":
+                    if parts[1] == "run":
+                        if parts[2] == "py":
+                            exec(str(parts[3:]).replace("[","").replace("]","").replace(", "," ").replace("'","").replace('"',""))
+                        elif parts[2] == "shell":
+                            os.system(str(parts[3:]).replace("[","").replace("]","").replace(", "," ").replace("'","").replace('"',""))
+                    elif parts[1] == "sh":
+                        if sys.platform == "win32":
+                            os.system("cmd")
+                        elif sys.platform == "darwin":
+                            os.system("zsh" if os.path.exists("/bin/zsh") else "bash")
+                        else:
+                            os.system("bash")
+                    elif parts[1] == "help":
+                        print(rf"""
+`command` docs
+`command` [run|sh|help] [py|shell]
+        run           RUN COMMANDS
+            py        EXEC PYTHONCOMMANDS
+            shell     EXEC CMD
+        sh            BASHES
+        help          DOCS""")
+                    else:
+                        print("Invalid,Enter `command help` to help")
+                elif parts[0] == "cd":
+                    if len(parts) < 1:
                         print("Invalid syntax. Usage: cd <directory>")
-                    elif len(DOS.split(" ")) >= 2:
+                    elif len(parts) >= 2:
                         try:
                             os.chdir(DOS.replace("cd ",""))
                         except Exception as e:
                             print("ERROR:",e)
                     else:
                         try:
-                            os.chdir(DOS.split(" ")[1])
+                            os.chdir(parts[1])
                         except Exception as e:
                             print("ERROR:",e)
-                elif DOS.startswith("mkdir"):
-                    if len(DOS.split(" ")) < 1:
+                elif parts[0] == "mkdir":
+                    if len(parts) < 1:
                         print("Invalid syntax. Usage: mkdir <directory>")
-                    elif len(DOS.split(" ")) >= 2:
+                    elif len(parts) >= 2:
                         try:
                             os.makedirs(DOS.replace("mkdir ",""))
                         except Exception as e:
                             print("ERROR:",e)
                     else:
                         try:
-                            os.makedirs(DOS.split(" ")[1])
+                            os.makedirs(parts[1])
                         except Exception as e:
                             print("ERROR:",e)
-                elif DOS.startswith("rmdir"):
-                    if len(DOS.split(" ")) < 1:
+                elif parts[0] == "rmdir":
+                    if len(parts) < 1:
                         print("Invalid syntax. Usage: rmdir <directory>")
-                    elif len(DOS.split(" ")) >= 2:
+                    elif len(parts) >= 2:
                         try:
                             os.rmdir(DOS.replace("rmdir ",""))
                         except Exception as e:
                             print("ERROR:",e)
                     else:
                         try:
-                            os.rmdir(DOS.split(" ")[1])
+                            os.rmdir(parts[1])
                         except Exception as e:
                             print("ERROR:",e)
-                elif DOS.startswith("del"):
-                    if len(DOS.split(" ")) < 1:
+                elif parts[0] == "del":
+                    if len(parts) < 1:
                         print("Invalid syntax. Usage: del <file>")
-                    elif len(DOS.split(" ")) >= 2:
+                    elif len(parts) >= 2:
                         try:
                             os.remove(DOS.replace("del ",""))
                         except Exception as e:
                             print("ERROR:",e)
                     else:
                         try:
-                            os.remove(DOS.split(" ")[1])
+                            os.remove(parts[1])
                         except Exception as e:
                             print("ERROR:",e)
-                elif DOS.startswith("rm"):
-                    if len(DOS.split(" ")) < 1:
+                elif os.path.exists(parts[0]) and parts[0].endswith(".bat"):
+                    os.system(DOS)
+                elif os.path.exists(parts[0]) and parts[0].endswith(".exe"):
+                    os.system(DOS)
+                elif parts[0] == "rm":
+                    if len(parts) < 1:
                         print("Invalid syntax. Usage: rm <file>")
-                    elif len(DOS.split(" ")) >= 2:
+                    elif len(parts) >= 2:
                         try:
                             os.remove(DOS.replace("rm ",""))
                         except Exception as e:
                             print("ERROR:",e)
                     else:
                         try:
-                            os.remove(DOS.split(" ")[1])
+                            os.remove(parts[1])
                         except Exception as e:
                             print("ERROR:",e)
-                elif DOS.startswith('exit'):
+                elif parts[0] == 'exit':
                     sys.exit(0)
                 elif ['fuck','shit','nigger'] in DOS.lower():
                     print(f"FATAL ERROR {DOS}")
@@ -1399,34 +1424,7 @@ Exit Minecraft-DOS
                 print(f"Found an Exception: {e}")
             except KeyboardInterrupt:
                 Minecraft.DOS()
-
 Minecraft.Config_ini()
-
-def boot_sequence():
-        Minecraft.OOO("Starting Minecraft-DOS...",1,0.05)
-        print("\n",end="")
-        Minecraft.OOO("Initializing system components...",1,0.05)
-        print("\n",end="")
-        Minecraft.OOO("Loading configurations...",1,0.05)
-        print("\n",end="")
-        Minecraft.OOO("Checking network connectivity...",1,0.05)
-        print("\n",end="")
-        if isnetconnect():
-            print("Network connected")
-            print("\n",end="")
-        else:
-            print("No network connection")
-            print("\n",end="")
-        Minecraft.OOO("Setting up environment...",1,0.05)
-        print("\n",end="")
-        Minecraft.OOO("Launching Minecraft-DOS",1,0.05)
-        print("\n",end="")
-        print("Minecraft-DOS is ready to use!")
-        print("\n",end="")
-Minecraft.launcher_profile()
-boot_sequence()
-Minecraft.OOO("HIMEM is testing memory...",10,0.05)
-print("\n",end="")
 Minecraft.Menu()
 print(f"Start time at {datetime.datetime.now()}")
 if not isnetconnect():

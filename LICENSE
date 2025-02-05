@@ -1,21 +1,78 @@
+# License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
 MIT License
+-----------
 
-Copyright (c) 2023 hanhanfakedos
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+## 简体中文许可协议
+
+本项目依据 MIT 许可协议授权。详情请参见 [LICENSE](./LICENSE) 文件。
+
+MIT 许可协议
+-----------
+
+特此免费授予任何获得本软件及相关文档文件（“软件”）副本的人员处理本软件的权利，包括但不限于使用、复制、修改、合并、出版、分发、再许可及/或销售本软件副本的权利，并允许本软件提供者在符合以下条件的情况下这样做：
+
+上述版权声明和本许可声明应包含在本软件的所有副本或主要部分中。
+
+本软件按“原样”提供，不提供任何形式的明示或暗示担保，包括但不限于对适销性、特定用途适用性及非侵权的担保。在任何情况下，作者或版权持有人均不对因本软件或本软件的使用或其他交易引起的任何索赔、损害或其他责任负责，无论是在合同诉讼、侵权诉讼或其他诉讼中。
+
+## 繁體中文許可協議
+
+本項目依據 MIT 許可協議授權。詳情請參見 [LICENSE](./LICENSE) 文件。
+
+MIT 許可協議
+-----------
+
+特此免費授予任何獲得本軟件及相關文檔文件（“軟件”）副本的人員處理本軟件的權利，包括但不限於使用、複製、修改、合併、出版、分發、再許可及/或銷售本軟件副本的權利，並允許本軟件提供者在符合以下條件的情況下這樣做：
+
+上述版權聲明和本許可聲明應包含在本軟件的所有副本或主要部分中。
+
+本軟件按“原樣”提供，不提供任何形式的明示或暗示擔保，包括但不限於對適銷性、特定用途適用性及非侵權的擔保。在任何情況下，作者或版權持有人均不對因本軟件或本軟件的使用或其他交易引起的任何索賠、損害或其他責任負責，無論是在合同訴訟、侵權訴訟或其他訴訟中。
+
+## 한국어 라이선스
+
+이 프로젝트는 MIT 라이선스에 따라 라이선스가 부여됩니다. 자세한 내용은 [LICENSE](./LICENSE) 파일을 참조하십시오.
+
+MIT 라이선스
+-----------
+
+본 소프트웨어 및 관련 문서 파일(이하 "소프트웨어")의 사본을 취득하는 모든 사람에게 소프트웨어를 제한 없이 사용할 수 있는 권한을 무료로 부여합니다. 여기에는 소프트웨어를 사용, 복사, 수정, 병합, 출판, 배포, 서브라이선스 및/또는 판매할 권한이 포함되며, 소프트웨어를 제공받은 사람이 다음 조건을 충족하는 경우에도 동일하게 허용됩니다.
+
+위의 저작권 표시와 이 허가 표시가 소프트웨어의 모든 사본 또는 주요 부분에 포함되어야 합니다.
+
+본 소프트웨어는 "있는 그대로" 제공되며, 명시적이든 묵시적이든 어떠한 종류의 보증도 제공되지 않습니다. 여기에는 상품성, 특정 목적에의 적합성 및 비침해에 대한 보증이 포함되지만 이에 국한되지 않습니다. 어떠한 경우에도 저자 또는 저작권 보유자는 소프트웨어 또는 소프트웨어의 사용 또는 기타 거래와 관련하여 발생하는 모든 청구, 손해 또는 기타 책임에 대해 계약, 불법 행위 또는 기타 방식으로 책임을 지지 않습니다.
+
+## Licencia en español
+
+Este proyecto está licenciado bajo la Licencia MIT. Consulte el archivo [LICENSE](./LICENSE) para obtener más detalles.
+
+Licencia MIT
+-----------
+
+Por la presente se concede permiso, sin cargo, a cualquier persona que obtenga una copia de este software y los archivos de documentación asociados (el "Software"), para utilizar el Software sin restricciones, incluidos, entre otros, los derechos de usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o vender copias del Software, y permitir a las personas a quienes se les proporcione el Software hacerlo, sujeto a las siguientes condiciones:
+
+El aviso de copyright anterior y este aviso de permiso se incluirán en todas las copias o partes sustanciales del Software.
+
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA, INCLUYENDO PERO NO LIMITADO A GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y NO INFRACCIÓN. EN NINGÚN CASO LOS AUTORES O LOS TITULARES DEL COPYRIGHT SERÁN RESPONSABLES DE NINGUNA RECLAMACIÓN, DAÑOS U OTRAS RESPONSABILIDADES, YA SEA EN UNA ACCIÓN DE CONTRATO, AGRAVIO O DE OTRO MODO, QUE SURJAN DE, FUERA O EN CONEXIÓN CON EL SOFTWARE O EL USO U OTRO TIPO DE ACCIONES EN EL SOFTWARE.
+
+## Licence en français
+
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](./LICENSE) pour plus de détails.
+
+Licence MIT
+-----------
+
+La permission est accordée, gratuitement, à toute personne obtenant une copie de ce logiciel et des fichiers de documentation associés (le "Logiciel"), de traiter le Logiciel sans restriction, y compris sans limitation les droits d'utiliser, copier, modifier, fusionner, publier, distribuer, sous-licencier et/ou vendre des copies du Logiciel, et de permettre aux personnes à qui le Logiciel est fourni de le faire, sous réserve des conditions suivantes :
+
+L'avis de droit d'auteur ci-dessus et cet avis de permission doivent être inclus dans toutes les copies ou parties substantielles du Logiciel.
+
+LE LOGICIEL EST FOURNI "TEL QUEL", SANS GARANTIE D'AUCUNE SORTE, EXPRESSE OU IMPLICITE, Y COMPRIS MAIS SANS S'Y LIMITER LES GARANTIES DE QUALITÉ MARCHANDE, D'ADÉQUATION À UN USAGE PARTICULIER ET DE NON-VIOLATION. EN AUCUN CAS LES AUTEURS OU LES TITULAIRES DU COPYRIGHT NE SERONT RESPONSABLES DE TOUTE RÉCLAMATION, DOMMAGE OU AUTRE RESPONSABILITÉ, QUE CE SOIT DANS UNE ACTION DE CONTRAT, DÉLIT OU AUTRE, DÉCOULANT DE, HORS OU EN CONNEXION AVEC LE LOGICIEL OU L'UTILISATION OU D'AUTRES ACTIONS DANS LE LOGICIEL.
+
