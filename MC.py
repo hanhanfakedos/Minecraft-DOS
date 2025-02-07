@@ -1201,6 +1201,9 @@ Github Copilot
                         else:
                             username=username1
                             Minecraft.RunMinecraft.Run(version,username,uuid1,token1,Xmx1)
+                    else:
+                        username=username1
+                        Minecraft.RunMinecraft.Run(version,username,uuid1,token1,Xmx1)
                 elif parts[0] == "config":
                     Minecraft.ConfPanel()
                 elif parts[0] == "modsmenu":

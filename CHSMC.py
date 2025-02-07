@@ -1100,37 +1100,37 @@ Github Copilot
         Xmx1=conf["JVMMemory"]["Xmx"]
         api_key = "$2a$10$6.P/W1SuOQxOsPnsqHYHc.01wQN.duMd2nxrYwOJJCP4nKhLXEdza"
         helpf=f"""
-{Fore.YELLOW}Minecraft-DOS Help documents
+{Fore.YELLOW}Minecraft-DOS 帮助文档
 {Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}listver{Fore.WHITE} (None)
-{Fore.WHITE}List all version
+{Fore.GREEN}列表{Fore.WHITE}。(无)
+{Fore.White}列出所有版本
 {Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}download{Fore.WHITE} (Vers)
-{Fore.WHITE}Download a version
+{Fore.GREEN}下载{Fore.WHITE}。（Vers）
+{Fore.White}下载版本
 {Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}launch{Fore.WHITE} (Vers)
-{Fore.WHITE}Launch a version
+{Fore.GREEN}启动{Fore.WHITE}。(Vers)
+{Fore.White}启动一个版本
 {Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}config{Fore.WHITE} (None)
-{Fore.WHITE}Configure your profile
+{Fore.GREEN}配置{Fore.WHITE}。（无）
+{Fore.White}配置您的个人资料
 {Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}clear{Fore.WHITE} (None)
-{Fore.WHITE}Clear Console
+{Fore.GREEN}清除{Fore.WHITE}。（无）
+{Fore.White}清除控制台
 {Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}refrver{Fore.WHITE} or {Fore.GREEN}F5{Fore.WHITE} (None)
-{Fore.WHITE}Refresh installed versions
+{Fore.GREEN}清除{Fore.WHITE}或{Fore.GREEN}F5{Fore.WHITE}。无
+{Fore.White}刷新已安装版本
 {Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}mslogin{Fore.WHITE} (None)
-{Fore.WHITE}Microsoft Login
+{Fore.GREEN}mslogin{Fore.WHITE}（无 (无)
+{Fore.White}微软登录
 {Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}authlib{Fore.WHITE} (None)
-{Fore.WHITE}Authlib-Injector Yggdrasil Sign
+{Fore.GREEN}authlib{Fore.WHITE}（无 (无)
+{Fore.White}Authlib-Injector Yggdrasil Sign
 {Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}alaunch{Fore.WHITE} (Vers)
-{Fore.WHITE}Authlib-Injector Launch
+{Fore.GREEN}发射{Fore.WHITE}。(Vers)
+{Fore.White}Authlib-注入器启动
 {Fore.CYAN}----------------------------------------------------
-{Fore.GREEN}mslaunch{Fore.WHITE} (Vers)
-{Fore.WHITE}Microsoft Account Launch
+{Fore.GREEN}mslaunch{Fore.WHITE}（Vers）
+{Fore.White}微软账户启动
 {Fore.CYAN}----------------------------------------------------
 {Fore.GREEN}modsmenu {Fore.WHITE}(None)(Beta)
 {Fore.WHITE}Display available mods from CurseForge API
@@ -1163,10 +1163,10 @@ Github Copilot
 {Fore.WHITE}Manage Minecraft skins
 {Fore.CYAN}----------------------------------------------------
 {Fore.GREEN}searchmodrinth{Fore.WHITE} (None)
-{Fore.WHITE}Search mods from Modrinth API
+{Fore.WHITE}从Modrinth API搜索模组
 {Fore.CYAN}----------------------------------------------------
 {Fore.GREEN}exit{Fore.WHITE} (None)
-{Fore.WHITE}Exit Minecraft-DOS
+{Fore.WHITE}退出Minecraft-DOS
 {Fore.CYAN}----------------------------------------------------
 """        
         print(Fore.CYAN + "Enter `help` for help")
@@ -1182,7 +1182,7 @@ Github Copilot
                         Vers = parts[1]
                         Minecraft.installMinecraft.Download(Vers)
                     else:
-                        print("Incorrect")
+                        print("错误")
                 elif parts[0] == 'launch':
                     version = parts[1]
                     if len(parts) > 2:
@@ -1201,6 +1201,9 @@ Github Copilot
                         else:
                             username=username1
                             Minecraft.RunMinecraft.Run(version,username,uuid1,token1,Xmx1)
+                    else:
+                        username=username1
+                        Minecraft.RunMinecraft.Run(version,username,uuid1,token1,Xmx1)
                 elif parts[0] == "config":
                     Minecraft.ConfPanel()
                 elif parts[0] == "modsmenu":
@@ -1213,7 +1216,7 @@ Github Copilot
                     query = input("Enter search query: ")
                     mods = Minecraft.search_mods_from_curseforge(query, api_key)
                     if mods:
-                        print("Search results:")
+                        print("搜索结果：")
                         for mod in mods:
                             print(f"- {mod['name']} ({mod['slug']})")
                 elif parts[0] == "checkdisk":
@@ -1291,11 +1294,11 @@ Github Copilot
                         game_version = parts[2]
                         Minecraft.download_mod_from_modrinth(mod_id, game_version)
                     else:
-                        print("Usage: downmodrinth <ModID> <GameVersion>")
+                        print("使用： downmodrinth <ModID> <GameVersion>")
                 elif parts[0] == "modrinth":
                     mods = Minecraft.fetch_mods_from_modrinth()
                     if mods:
-                        print("Available Mods from Modrinth:")
+                        print("结果")
                         for mod in mods:
                             print(f"- {mod['title']} ({mod['slug']})")
                 elif parts[0] == "searchmodrinth":
@@ -1308,7 +1311,7 @@ Github Copilot
                         continue
                     mods = Minecraft.search_mods_from_modrinth(query)
                     if mods:
-                        print("Search results:")
+                        print("搜索结果：")
                         for mod in mods:
                             print(f"- {mod['title']} ({mod['slug']})")
                 elif parts[0] == "clear":
@@ -1324,7 +1327,7 @@ Github Copilot
                         game_version = parts[2]
                         Minecraft.download_mod(mod_name, game_version)
                     else:
-                        print("Usage: downmod <ModName> <GameVersion>")
+                        print("使用： downmod <ModName> <GameVersion>")
                 elif parts[0] == "command":
                     if parts[1] == "run":
                         if parts[2] == "py":
