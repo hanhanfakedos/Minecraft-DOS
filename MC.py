@@ -1434,4 +1434,5 @@ Minecraft.Menu()
 print(f"Start time at {datetime.datetime.now()}")
 if not isnetconnect():
     print("not internet connect, `launch`,`help`,`clear`,`config`and`refrver` only")
-Minecraft.DOS()
+if __name__ == "__main__":
+    Minecraft.DOS()
