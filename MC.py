@@ -1258,6 +1258,9 @@ Github Copilot
                     conf = configparser.ConfigParser()
                     conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
                     Minecraft.RunMinecraft.Run(Vers21,conf["userMS"]["Username"],conf["userMS"]["UUID"],conf["userMS"]["Token"],Xmx1,authlib=True)
+                elif parts[0] == "cat":
+                    if len(parts) >= 2:
+                        print(open(DOS.replace("cat ","")).read)
                 elif parts[0] == "authlib":
                     if len(parts) > 1:
                         args=parts[1:]
@@ -1314,7 +1317,12 @@ Github Copilot
                 elif parts[0] == "clear":
                     print("\033c",end="")
                 elif parts[0] == "refrver" or keyboard.is_pressed("f5"):
-                    minecraft_launcher_lib.utils.get_installed_versions(defaultMinecraftDir)
+                    versions = minecraft_launcher_lib.utils.get_installed_versions(defaultMinecraftDir)
+                    if versions:
+                        for version in versions:
+                            print(f" - {version['id']}")
+                    else:
+                        print("No versions installed.")
                     time.sleep(0.5)
                 elif DOS == "":
                     pass

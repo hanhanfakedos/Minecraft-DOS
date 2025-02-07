@@ -43,6 +43,7 @@ except ModuleNotFoundError:
     pipdown("wget")
     pipdown("keyboard")
     pipdown("requests")
+    os.system("pip3 install colorama") #special
     os.system("pip3 install pillow")
     from PIL import Image
 
@@ -733,22 +734,22 @@ class Minecraft:
                     print(f"""ARGS DOCUMATION
 +------------------------------------------+
 | --forge[--optifine]                      |
-| Install Forge[and optifine]              |
+{Fore.WHITE}| Install Forge[and optifine]              |
 +------------------------------------------+
 | --fabric[--sodium]                       |
-| Install Fabric+API[and sodium]           |
+{Fore.WHITE}| Install Fabric+API[and sodium]           |
 +------------------------------------------+
 | --quilt                                  |
-| Install Quilt                            |
+{Fore.WHITE}| Install Quilt                            |
 +------------------------------------------+
 | --neoforge                               |
-| Install Neoforged                        |
+{Fore.WHITE}| Install Neoforged                        |
 +------------------------------------------+
 | --vanilla                                |
-| Install Vanilla                          |
+{Fore.WHITE}| Install Vanilla                          |
 +------------------------------------------+
 | --help                                   |
-| Help documents                           |
+{Fore.WHITE}| Help documents                           |
 +------------------------------------------+""")
                 else:
                     print(f"Input `--help` to help")
@@ -1097,71 +1098,71 @@ Github Copilot
         helpf=f"""
 Minecraft-DOS Help documents
 ----------------------------------------------------
-listver (None)
-List all version
+listver{Fore.WHITE} (None)
+{Fore.WHITE}List all version
 ----------------------------------------------------
-download (Vers)
-Download a version
+download{Fore.WHITE} (Vers)
+{Fore.WHITE}Download a version
 ----------------------------------------------------
-launch (Vers)
-Launch a version
+launch{Fore.WHITE} (Vers)
+{Fore.WHITE}Launch a version
 ----------------------------------------------------
-config (None)
-Configure your profile
+config{Fore.WHITE} (None)
+{Fore.WHITE}Configure your profile
 ----------------------------------------------------
-clear (None)
-Clear Console
+clear{Fore.WHITE} (None)
+{Fore.WHITE}Clear Console
 ----------------------------------------------------
-refrver or F5 (None)
-Refresh installed versions
+refrver{Fore.WHITE} or F5{Fore.WHITE} (None)
+{Fore.WHITE}Refresh installed versions
 ----------------------------------------------------
-mslogin (None)
-Microsoft Login
+mslogin{Fore.WHITE} (None)
+{Fore.WHITE}Microsoft Login
 ----------------------------------------------------
-authlib (None)
-Authlib-Injector Yggdrasil Sign
+authlib{Fore.WHITE} (None)
+{Fore.WHITE}Authlib-Injector Yggdrasil Sign
 ----------------------------------------------------
-alaunch (Vers)
-Authlib-Injector Launch
+alaunch{Fore.WHITE} (Vers)
+{Fore.WHITE}Authlib-Injector Launch
 ----------------------------------------------------
-mslaunch (Vers)
-Microsoft Account Launch
+mslaunch{Fore.WHITE} (Vers)
+{Fore.WHITE}Microsoft Account Launch
 ----------------------------------------------------
-modsmenu (None)(Beta)
-Display available mods from CurseForge API
+modsmenu {Fore.WHITE}(None)(Beta)
+{Fore.WHITE}Display available mods from CurseForge API
 ----------------------------------------------------
-checkdisk (None)
-Check available disk space
+checkdisk {Fore.WHITE}(None)
+{Fore.WHITE}Check available disk space
 ----------------------------------------------------
-sysinfo (None)
-Show system information
+sysinfo {Fore.WHITE}(None)
+{Fore.WHITE}Show system information
 ----------------------------------------------------
-uninstall (Vers)
-Uninstall a Minecraft version
+uninstall {Fore.WHITE}(Vers)
+{Fore.WHITE}Uninstall a Minecraft version
 ----------------------------------------------------
-modmenu (Beta)
-Fetch mods from CurseForge
+modmenu {Fore.WHITE}(Beta)
+{Fore.WHITE}Fetch mods from CurseForge
 ----------------------------------------------------
-searchmod (None)
-Search mods from CurseForge API
+searchmod {Fore.WHITE}(None)
+{Fore.WHITE}Search mods from CurseForge API
 ----------------------------------------------------
-downmod (ModName GameVersion)(Beta)
-Download a mod from CurseForge
+downmod {Fore.WHITE}(ModName GameVersion)(Beta)
+{Fore.WHITE}Download a mod from CurseForge
 ----------------------------------------------------
-modrinth (None)
-Display available mods from Modrinth API
+modrinth{Fore.WHITE} (None)
+{Fore.WHITE}Display available mods from Modrinth API
 ----------------------------------------------------
-downmodrinth (ModID GameVersion)
-Download a mod from Modrinth
+downmodrinth{Fore.WHITE} (ModID GameVersion)
+{Fore.WHITE}Download a mod from Modrinth
 ----------------------------------------------------
-skinmanager (None)
-Manage Minecraft skins
+skinmanager{Fore.WHITE} (None)
+{Fore.WHITE}Manage Minecraft skins
 ----------------------------------------------------
-searchmodrinth (None)
-Search mods from Modrinth API
+searchmodrinth{Fore.WHITE} (None)
+{Fore.WHITE}Search mods from Modrinth API
 ----------------------------------------------------
-exit (None)
-Exit Minecraft-DOS
+exit{Fore.WHITE} (None)
+{Fore.WHITE}Exit Minecraft-DOS
 ----------------------------------------------------
 """        
         print("Enter `help` for help")
@@ -1253,6 +1254,9 @@ Exit Minecraft-DOS
                     conf = configparser.ConfigParser()
                     conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
                     Minecraft.RunMinecraft.Run(Vers21,conf["userMS"]["Username"],conf["userMS"]["UUID"],conf["userMS"]["Token"],Xmx1,authlib=True)
+                elif parts[0] == "cat":
+                    if len(parts) >= 2:
+                        print(open(DOS.replace("cat ","")).read)
                 elif parts[0] == "authlib":
                     if len(parts) > 1:
                         args=parts[1:]
@@ -1343,7 +1347,7 @@ Exit Minecraft-DOS
         sh            BASHES
         help          DOCS""")
                     else:
-                        print("Invalid,Enter `command help` to help")
+                        print(Fore.RED+"Invalid,Enter `command help` to help")
                 elif parts[0] == "cd":
                     if len(parts) < 1:
                         print("Invalid syntax. Usage: cd <directory>")
@@ -1416,7 +1420,7 @@ Exit Minecraft-DOS
                 elif parts[0] == 'exit':
                     sys.exit(0)
                 elif ['fuck','shit','nigger'] in DOS.lower():
-                    print(f"FATAL ERROR {DOS}")
+                    print(Fore.RED+f"FATAL ERROR {DOS}")
                 else:
                     print(f"DOSError: {DOS}")
                     print("Enter `help` for help")
@@ -1429,4 +1433,5 @@ Minecraft.Menu()
 print(f"Start time at {datetime.datetime.now()}")
 if not isnetconnect():
     print("not internet connect, `launch`,`help`,`clear`,`config`and`refrver` only")
-Minecraft.DOS()
+if __name__ == "__main__":
+    Minecraft.DOS()
