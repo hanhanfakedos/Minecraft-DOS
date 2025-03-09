@@ -58,6 +58,7 @@ if platform.architecture()[0] == '32bit':
 def empty(*args):
     pass
 
+
 __author__="HomingThistle3770"
 cwd = os.getcwd()
 try:
@@ -107,13 +108,17 @@ def show_system_info():
 def sysplatform():
     if sys.platform == "win32" and platform.machine() == "AMD64":
         return "windows-x64"
-    elif sys.platform == "linux" and platform.machine() == "AMD64":
-        return "linux"
     elif sys.platform == "darwin" and platform.machine() == "AMD64":
         return "mac-os"
-    elif sys.platform == "win32" and platform.machine() == "ARM64":
+    elif sys.platform == "win32" and platform.machine() == "x86_64":
+        return "windows-x64"
+    elif sys.platform == "linux":
+        return "linux"
+    elif sys.platform == "darwin" and platform.machine() == "x86_64":
+        return "mac-os"
+    elif sys.platform == "win32" and platform.machine() == "aarch64":
         return "windows-arm64"
-    elif sys.platform == "darwin" and platform.machine() == "ARM64":
+    elif sys.platform == "darwin" and platform.machine() == "aarch64":
         return "mac-os-arm64"
 class neoforged:
     def fetchneoforgedlver(ver:str):
@@ -133,55 +138,18 @@ class neoforged:
         except Exception as e:
             print(f"Error fetching Neoforge versions: {e}")
             return []
-    def downloadneoforged(mcver:str,ver:str,Callback:dict=None):
+    def downloadneoforged(ver:str,java:str,Callback:dict=None):
         try:
-            if not os.path.exists(f"{defaultMinecraftDir}/versions/neoforge-{ver}"):
-                os.makedirs(rf"{defaultMinecraftDir}/versions/neoforge-{ver}")
             Callback.get("setStatus")("Downloading Neoforged installer...")
             Callback.get("setMax")(1)
             Callback.get("setProgress")(0)
             url=f"https://maven.neoforged.net/releases/net/neoforged/neoforge/neoforge-{ver}/neoforge-{ver}-installer.jar"
-            if not os.path.exists(f"{defaultMinecraftDir}/versions/neoforge-{ver}/neoforge-{ver}-installer.jar"):
-                wget.download(url,f"{defaultMinecraftDir}/versions/neoforge-{ver}/neoforge-{ver}-installer.jar")
-            zipf = zipfile.ZipFile(f"{defaultMinecraftDir}/versions/neoforge-{ver}/neoforge-{ver}-installer.jar")
-            zipf.extract("version.json",f"{defaultMinecraftDir}/versions/neoforge-{ver}/")
-            zipf.close()
-            os.remove(f"{defaultMinecraftDir}/versions/neoforge-{ver}/neoforge-{ver}-installer.jar")
-            Callback.get("setProgress")(1)
-            Callback.get("setStatus")("Getting Neoforged version...")
-            Callback.get("setMax")(1)
-            Callback.get("setProgress")(0)
-            url2=f"https://maven.neoforged.net/releases/net/neoforged/neoforge/neoforge-{ver}/neoforge-{ver}-universal.jar"
-            if not os.path.exists(f"{defaultMinecraftDir}/versions/neoforge-{ver}/neoforge-{ver}-universal.jar"):
-                wget.download(url2,f"{defaultMinecraftDir}/versions/neoforge-{ver}/neoforge-{ver}-universal.jar")
-            Callback.get("setProgress")(1)
-            versionjson=json.load(open(f"{defaultMinecraftDir}/versions/neoforge-{ver}/version.json"))
-            Callback.get("setStatus")("Downloading Libraries...")
-            Callback.get("setMax")(len(versionjson['libraries']))
-            count=0
-            for i in versionjson['libraries']:
-                wget.download(i["downloads"]["artifact"]['url'],f"""{defaultMinecraftDir}/libraries/{i["downloads"]["artifact"]['path']}""")
-                count+=1
-                Callback.get("setProgress")(count)
-            shutil.copy(f"{defaultMinecraftDir}/versions/{mcver}/{mcver}.json",f"{defaultMinecraftDir}/versions/neoforge-{ver}/{mcver}.json")
-            defaultjson=json.load(open(f"{defaultMinecraftDir}/versions/neoforge-{ver}/{mcver}.json"))
-            Callback.get("setStatus")("Merging Libraries...")
-            for i in defaultjson['libraries']:
-                versionjson['libraries'].append(i)
-            runnow=[]
-            for i in versionjson['libraries']:
-                runnow.append(i['downloads']['artifact']['path'].split("/")[-3])
-            runnow=list(set(runnow))
-            newversionjson=versionjson
-            newversionjson['libraries']=[]
-            for i in versionjson['libraries']:
-                if i['downloads']['artifact']['path'].split("/")[-3] in runnow:
-                    runnow.remove(i['downloads']['artifact']['path'].split("/")[-3])
-                    newversionjson['libraries'].append(i)
-                else:
-                    pass
-            with open(f"{defaultMinecraftDir}/versions/neoforge-{ver}/{ver}.json","w") as f:
-                json.dump(newversionjson,f,indent=4)
+            if not os.path.exists(f"{defaultMinecraftDir}/neoforge-{ver}-installer.jar"):
+                wget.download(url,f"{defaultMinecraftDir}/neoforge-{ver}-installer.jar")
+            if not os.path.exists(os.path.join(defaultMinecraftDir,"runtime",java)):
+                minecraft_launcher_lib.runtime.install_jvm_runtime(java,defaultMinecraftDir,Callback)
+            Callback.get("setStatus")("Running installer")
+            os.popen(f"{os.path.join(defaultMinecraftDir,"runtime",java,sysplatform(),java,"bin","java")} -jar {defaultMinecraftDir}/neoforge-{ver}-installer.jar")
             Callback.get("setStatus")("Installed")
         except Exception as e:
             print(f"Error downloading Neoforge: {e}")
@@ -238,12 +206,9 @@ class MinecraftSkins:
             print(f"{Fore.RED}Error downloading official skin: {e}")
             return None
 
-    def download_third_party_skin(self, username, server_url=None):
+    def download_third_party_skin(self, username, server_url):
         """Download skin from third-party authentication server"""
         try:
-            if server_url is None:
-                server_url = "https://littleskin.cn/api/yggdrasil"
-                
             print(f"{Fore.CYAN}Downloading skin for {username} from {server_url}...")
             response = requests.get(f"{server_url}/sessionserver/session/minecraft/profile/{username}")
             if response.status_code != 200:
@@ -566,7 +531,7 @@ class Minecraft:
         global MSloginData
         MSloginData = minecraft_launcher_lib.microsoft_account.complete_login(clientid, None, redirecturi, auth_code, code_verifier)
     
-    def javachecker(ver):
+    def javachecker(ver) -> str:
         verlist=minecraft_launcher_lib.utils.get_version_list()
         lst=[]
         jrelegacy=[]
@@ -1177,9 +1142,14 @@ Github Copilot
                 if parts[0] == 'download':
                     if len(parts) > 2:
                         Vers = parts[1]
-                        Minecraft.installMinecraft.Download(Vers,DOS.replace(f"download {Vers} ",""))
+                        if parts[2] == "Shareware":
+                            print("Please use `download 3d_shareware` instead `download 3D Shareware v1.34`.")
+                        else:
+                            Minecraft.installMinecraft.Download(Vers,DOS.replace(f"download {Vers} ",""))
                     elif len(parts) == 2:
                         Vers = parts[1]
+                        if Vers == "3d_shareware":
+                            Vers = "3D Shareware v1.34"
                         Minecraft.installMinecraft.Download(Vers)
                     else:
                         print("Incorrect")
@@ -1258,12 +1228,18 @@ Github Copilot
                         conf.write(configfile)
                 elif parts[0] == 'mslaunch':
                     Vers21=parts[1]
+                    if '--custom-args' in parts:
+                        args=parts[parts.index('--custom-args')+1:]
+                    else:
+                        args=[]
                     conf = configparser.ConfigParser()
                     conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
-                    Minecraft.RunMinecraft.Run(Vers21,conf["userMS"]["Username"],conf["userMS"]["UUID"],conf["userMS"]["Token"],Xmx1,authlib=True)
+                    Minecraft.RunMinecraft.Run(Vers21,conf["userMS"]["Username"],conf["userMS"]["UUID"],conf["userMS"]["Token"],Xmx1,args=args if args != [] else None)
                 elif parts[0] == "cat":
                     if len(parts) >= 2:
-                        print(open(DOS.replace("cat ","")).read)
+                        print(open(DOS.replace("cat ","")).read())
+                    else:
+                        print("INVALID SYNTAX")
                 elif parts[0] == "authlib":
                     if len(parts) > 1:
                         args=parts[1:]
@@ -1284,11 +1260,18 @@ Github Copilot
                     Minecraft.AuthlibSign(YggdrasilURL, email, passwd)
                 elif parts[0] == 'alaunch':
                     Vers21=parts[1]
+                    if '--custom-args' in parts:
+                        args=parts[parts.index('--custom-args')+1:]
+                    else:
+                        args=[]
                     conf = configparser.ConfigParser()
                     conf.read(os.path.join(defaultMinecraftDir,"config.ini"))
-                    Minecraft.RunMinecraft.Run(Vers21,conf["userAuthlib"]["Username"],conf["userAuthlib"]["UUID"],conf["userAuthlib"]["Token"],Xmx1,authlib=True)
+                    Minecraft.RunMinecraft.Run(Vers21,conf["userAuthlib"]["Username"],conf["userAuthlib"]["UUID"],conf["userAuthlib"]["Token"],Xmx1,authlib=True,args=args if args != [] else None)
                 elif parts[0] == 'skinmanager':
                     Minecraft.skin_manager_interface()
+                elif parts[0] == "echo":
+                    if len(parts) >= 2:
+                        print(DOS.replace("echo ",""))
                 elif parts[0] == "help":
                     print(helpf)
                 elif parts[0] == "downmodrinth":
@@ -1360,6 +1343,13 @@ Github Copilot
         help          DOCS""")
                     else:
                         print(Fore.RED+"Invalid,Enter `command help` to help")
+                elif parts[0] == "python3":
+                    if len(parts) == 2:
+                        exec(open(parts[1]).read())
+                    elif len(parts) > 2:
+                        os.system(f"python3 {parts[1]} {str(parts[2:]).replace('[','').replace(']','').replace(', ','').replace("'","").replace('"','')}")
+                    else:
+                        exec(input(">>>"))
                 elif parts[0] == "cd":
                     if len(parts) < 1:
                         print(Fore.RED + "Invalid syntax. Usage: cd <directory>")
